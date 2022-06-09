@@ -1,6 +1,6 @@
 # MatPowerImport
 
-This utility is designed to convert [MATPOWER](https://github.com/MATPOWER/matpower) caseformat to rg2 format. The latter is the file format of [RastrWin](https://rastwin.ru), an industrial power system analysis software, best known in Russia.
+This utility is designed to convert [MATPOWER](https://github.com/MATPOWER/matpower) caseformat to rg2 format. The latter is the file format of [RastrWin](https://rastrwin.ru), an industrial power system analysis software, best known in Russia.
 
 ## Build
 
