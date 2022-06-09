@@ -60,7 +60,8 @@ void CPlainRastrEventSource::Log(LogMessageTypes status,
 	std::string_view UIform,
 	long Index)
 {
-	std::cout << Message << std::endl;
+	SetConsoleOutputCP(CP_UTF8);
+	std::cout << stringutils::acp_decode(Message) << std::endl;
 	if (DebugLogActive() && LogMessageTypes::CloseStage != status)
 		DebugLog(Message);
 }

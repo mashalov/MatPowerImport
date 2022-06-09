@@ -4,38 +4,42 @@
 #include "MatPowerData.h"
 #include "RastrWinIO.h"
 
-int main()
+int main(int argc, char* argv[])
 {
     CPlainRastrEventSource eventSource;
     CPlainLogger logger(&eventSource);
+
+    std::filesystem::path importpath;
+    std::filesystem::path rastrwinexportpath;
+
+    if (argc == 1)
+    {
+        logger.Log(LogMessageTypes::Info, "Usage: (matpower m-file path) [rastrwin rg2-file path]");
+        return 1;
+    }
+        
+
+    if (argc == 2)
+        importpath = argv[1];
+
+    if(argc == 3)
+        rastrwinexportpath = argv[2];
+
+    if (rastrwinexportpath.empty())
+    {
+        rastrwinexportpath = importpath;
+        rastrwinexportpath.replace_extension(".rg2");
+    }
+    
     try
     {
         MatPowerCase Case(logger);
-        //Case.Import("e:\\downloads\\case6ww.m");
-        //Case.Import("e:\\downloads\\case13659pegase.m");
-        //Case.Import("e:\\downloads\\case6515rte.m");
-        //Case.Import("e:\\downloads\\case118.m");
-        //Case.Import("e:\\downloads\\case2746wp.m");
-        Case.Import("e:\\downloads\\case_ACTIVSg70k.m");
-        //Case.Import("e:\\downloads\\case9241pegase.m");
-        
-        
+        Case.Import(importpath);
         RastrWinIO rastr;
-        rastr.Export(Case, "e:\\downloads\\case9241pegase.rg2");
+        rastr.Export(Case, rastrwinexportpath);
     }
     catch (const std::exception& ex)
     {
         logger.Log(LogMessageTypes::Error, ex.what());
     }
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
