@@ -35,9 +35,6 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 		if (FAILED(rastr.CreateInstance(ASTRALib::CLSID_Rastr)))
 			throw CExceptionGLE("RastrWin unavailable");
 
-
-
-
 		std::filesystem::path rg2template{ GetTemplatesPath() };
 		if (rg2template.empty())
 			data.logger_.Log(LogMessageTypes::Error, "RastrWin template path not found");
@@ -138,6 +135,9 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 				if (std::abs(kt) < 1E-7)
 					kt = 1.0;
 
+				const auto Zbase{ UHnom * UHnom / data.BaseMVA_ };
+				//const auto Zbase{ UTnom * UTnom / data.BaseMVA_ / std::norm(kt) };
+
 				kt = UTnom / UHnom / kt;
 
 				if (std::abs(kt.real() - 1.0) < 1E-7 && kt.imag() == 0)
@@ -146,7 +146,7 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 				branchktr->PutZ(row, kt.real());
 				branchkti->PutZ(row, kt.imag());
 
-				const auto Zbase{ UHnom * UHnom / data.BaseMVA_ /*std::norm(kt)*/ };
+
 
 				branchr->PutZ(row, branch.r * Zbase);
 				branchx->PutZ(row, branch.x * Zbase);
