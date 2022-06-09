@@ -12,10 +12,11 @@
 class  MpcLexer : public antlr4::Lexer {
 public:
   enum {
-    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, FLOAT = 7, 
-    DOT = 8, LBS = 9, RBS = 10, LET = 11, FUNCTION = 12, INTEGER = 13, STRING = 14, 
-    MPC = 15, VARIABLE = 16, LINE_COMMENT = 17, NEWLINE = 18, COMMA = 19, 
-    WSK = 20, WS = 21, SEMI = 22
+    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
+    FLOAT = 8, DOT = 9, LBS = 10, RBS = 11, LCB = 12, RCB = 13, LET = 14, 
+    FUNCTION = 15, INTEGER = 16, SQUOTE = 17, INF = 18, STRING = 19, MPC = 20, 
+    VARIABLE = 21, LINE_COMMENT = 22, NEWLINE = 23, COMMA = 24, WSK = 25, 
+    WS = 26, SEMI = 27
   };
 
   explicit MpcLexer(antlr4::CharStream *input);
@@ -32,6 +33,7 @@ public:
   virtual const std::vector<uint16_t> getSerializedATN() const override;
   virtual const antlr4::atn::ATN& getATN() const override;
 
+  virtual void action(antlr4::RuleContext *context, size_t ruleIndex, size_t actionIndex) override;
 private:
   static std::vector<antlr4::dfa::DFA> _decisionToDFA;
   static antlr4::atn::PredictionContextCache _sharedContextCache;
@@ -48,6 +50,7 @@ private:
 
 
   // Individual action functions triggered by action() above.
+  void STRINGAction(antlr4::RuleContext *context, size_t actionIndex);
 
   // Individual semantic predicate functions triggered by sempred() above.
 

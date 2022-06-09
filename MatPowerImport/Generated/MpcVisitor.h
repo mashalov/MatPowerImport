@@ -35,6 +35,8 @@ public:
 
     virtual antlrcpp::Any visitBaseMVA(MpcParser::BaseMVAContext *context) = 0;
 
+    virtual antlrcpp::Any visitBusname(MpcParser::BusnameContext *context) = 0;
+
     virtual antlrcpp::Any visitConstvalue(MpcParser::ConstvalueContext *context) = 0;
 
     virtual antlrcpp::Any visitFunction(MpcParser::FunctionContext *context) = 0;
@@ -47,11 +49,15 @@ public:
 
     virtual antlrcpp::Any visitValarray(MpcParser::ValarrayContext *context) = 0;
 
+    virtual antlrcpp::Any visitCellarray(MpcParser::CellarrayContext *context) = 0;
+
     virtual antlrcpp::Any visitRealconst(MpcParser::RealconstContext *context) = 0;
 
     virtual antlrcpp::Any visitVariable(MpcParser::VariableContext *context) = 0;
 
     virtual antlrcpp::Any visitArray(MpcParser::ArrayContext *context) = 0;
+
+    virtual antlrcpp::Any visitCell(MpcParser::CellContext *context) = 0;
 
 
 };

@@ -14,12 +14,14 @@ mpcvar
     | MPC DOT 'version' LET expression SEMI                     #version
     | MPC DOT 'gencost' LET expression SEMI                     #gencost
     | MPC DOT 'baseMVA' LET expression SEMI                     #baseMVA
+    | MPC DOT 'bus_name' LET expression SEMI                    #busname
     ;
-     
+
 constvalue
     : FLOAT
     | INTEGER
     | STRING
+    | INF
     ;
 
 mpcfunction
@@ -43,10 +45,15 @@ valarray
     : LBS valmatrix RBS                                         
     ;
 
+cellarray
+    : LCB valmatrix RCB
+    ;
+
 expression 
     : constvalue                                                #realconst  
     | VARIABLE                                                  #variable
     | valarray                                                  #array
+    | cellarray                                                 #cell
     ;
 
 
@@ -60,10 +67,20 @@ FLOAT
 DOT : '.';
 LBS: '[' ;
 RBS: ']';
+LCB: '{' ;
+RCB: '}';
 LET: '=' ;
 FUNCTION : 'function';
 INTEGER : SIGN DIGITS;
-STRING: '\'' DIGITS '\'';
+SQUOTE : '\'';
+fragment INSTRING : ~[']*;
+//STRING: SQUOTE INSTRING SQUOTE;
+
+INF: SIGN 'Inf';
+
+
+STRING :  SQUOTE INSTRING SQUOTE  { setText(getText().substr(1, getText().length()-2)); };
+
 fragment SIGN: '-'?; 
 fragment DIGITS : [0-9]+;
 fragment Exponent

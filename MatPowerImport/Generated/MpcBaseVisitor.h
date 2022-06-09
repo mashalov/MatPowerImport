@@ -47,6 +47,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitBusname(MpcParser::BusnameContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitConstvalue(MpcParser::ConstvalueContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -71,6 +75,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitCellarray(MpcParser::CellarrayContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitRealconst(MpcParser::RealconstContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -80,6 +88,10 @@ public:
   }
 
   virtual antlrcpp::Any visitArray(MpcParser::ArrayContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitCell(MpcParser::CellContext *ctx) override {
     return visitChildren(ctx);
   }
 

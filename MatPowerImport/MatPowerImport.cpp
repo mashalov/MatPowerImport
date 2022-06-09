@@ -13,10 +13,15 @@ int main()
         MatPowerCase Case(logger);
         //Case.Import("e:\\downloads\\case6ww.m");
         //Case.Import("e:\\downloads\\case13659pegase.m");
-        Case.Import("e:\\downloads\\case6515rte.m");
+        //Case.Import("e:\\downloads\\case6515rte.m");
+        //Case.Import("e:\\downloads\\case118.m");
+        //Case.Import("e:\\downloads\\case2746wp.m");
+        Case.Import("e:\\downloads\\case_ACTIVSg70k.m");
+        //Case.Import("e:\\downloads\\case9241pegase.m");
+        
         
         RastrWinIO rastr;
-        rastr.Export(Case, "e:\\downloads\\case.rg2");
+        rastr.Export(Case, "e:\\downloads\\case9241pegase.rg2");
     }
     catch (const std::exception& ex)
     {

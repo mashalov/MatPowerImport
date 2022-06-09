@@ -4,7 +4,9 @@
 #undef max
 #include "AntlrASTVisitor.h"
 
-MatPowerCase::MatPowerCase(CPlainLogger& logger) : logger_(logger)
+MatPowerCase::MatPowerCase(CPlainLogger& logger) : 
+    logger_(logger),
+    busnames(buses)
 {
 
 }
@@ -36,13 +38,17 @@ void MatPowerCase::Import(const std::filesystem::path& path)
 
     std::set<long> Areas;
     for (const auto& bus : buses)
-        if(bus.AreaId > 0)
+    {
+        if (bus.AreaId > 0)
             Areas.insert(bus.AreaId);
+
+        if (bus.Unom <= 0)
+            logger_.Log(LogMessageTypes::Error, "Bus {} has wrong baseKv {}", bus.Id, bus.Unom);
+    }
 
     areas.reserve(Areas.size());
     for (const auto& area : Areas)
         areas.push_back({ area });
-            
 
     logger_.Log(LogMessageTypes::Info, "Base MVA {}", BaseMVA_);
     logger_.Log(LogMessageTypes::Info, "Buses {}", buses.size());
@@ -50,4 +56,6 @@ void MatPowerCase::Import(const std::filesystem::path& path)
     logger_.Log(LogMessageTypes::Info, "Generators {}", generators.size());
     logger_.Log(LogMessageTypes::Info, "Areas {}", areas.size());
 
+    if (BaseMVA_ <= 0)
+        throw CException("BaseMVA {} seems wrong", BaseMVA_);
 }

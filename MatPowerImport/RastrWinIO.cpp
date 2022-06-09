@@ -1,5 +1,6 @@
 #include <complex>
 #include <map>
+#include <array>
 #include "RastrWinIO.h"
 #import "progid:Astra.Rastr.1" named_guids
 
@@ -33,6 +34,7 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 	ASTRALib::IColPtr nodeGsh{ nodecols->Item("gsh") };
 	ASTRALib::IColPtr nodeBsh{ nodecols->Item("bsh") };
 	ASTRALib::IColPtr nodeVref{ nodecols->Item("vzd") };
+	ASTRALib::IColPtr nodeName{ nodecols->Item("name") };
 
 	rastr->LockEvent = true;
 
@@ -49,7 +51,8 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 		nodeDelta->PutZN(row, node.Delta);
 		nodeArea->PutZ(row, node.AreaId);
 		nodeGsh->PutZ(row, node.Gsh / node.Unom / node.Unom);
-		nodeBsh->PutZ(row, node.Bsh / node.Unom / node.Unom);
+		nodeBsh->PutZ(row, -node.Bsh / node.Unom / node.Unom);
+		nodeName->PutZS(row, node.Name.c_str());
 
 		switch (node.Type)
 		{
@@ -82,39 +85,43 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 	
 	for (const auto& branch : data.branches)
 	{
-		std::complex<double> kt{ std::polar(branch.ktr, branch.kti / 180.0 * pi) };
 		branchHead->PutZ(row, branch.IdHead);
 		branchTail->PutZ(row, branch.IdTail);
 
-
-
-		if (auto NodeHead{ NodeMap.find(branch.IdHead) }; NodeHead == NodeMap.end())
-			throw CException("Branch {} {} has wrong node {}", branch.IdHead, branch.IdTail, branch.IdHead);
-		else
+		struct NodeIndex
 		{
-			const auto U1nom{ data.buses[NodeHead->second].Unom };
-			auto Zbase{ U1nom };
-			Zbase *= Zbase / data.BaseMVA_;
-			//Zbase = 1.0;
+			long Id; 
+			decltype(NodeMap)::const_iterator it;
+		};
+
+		std::array< NodeIndex, 2 > ht{ {{ branch.IdHead, NodeMap.end() } , { branch.IdTail, NodeMap.end() } } };
+
+		for(auto&& node : ht)
+			if (node.it = NodeMap.find(node.Id) ; node.it == NodeMap.end())
+				data.logger_.Log(LogMessageTypes::Error, "Branch {} {} has wrong node {}", branch.IdHead, branch.IdTail, node.Id);
+
+		if (ht[0].it != NodeMap.end() && ht[1].it != NodeMap.end())
+		{
+			const auto UHnom{ data.buses[ht[0].it->second].Unom };
+			const auto UTnom{ data.buses[ht[1].it->second].Unom };
+			std::complex<double> kt{ std::polar(branch.ktr, branch.kti / 180.0 * pi) };
+			if (std::abs(kt) < 1E-7)
+				kt = 1.0;
+
+			kt = UTnom / UHnom / kt;
+
+			if (std::abs(kt.real() - 1.0) < 1E-7 && kt.imag() == 0)
+				kt = 0.0;
+
+			branchktr->PutZ(row, kt.real());
+			branchkti->PutZ(row, kt.imag());
+
+			const auto Zbase{ UHnom * UHnom / data.BaseMVA_ /*std::norm(kt)*/};
+
 			branchr->PutZ(row, branch.r * Zbase);
 			branchx->PutZ(row, branch.x * Zbase);
-			branchb->PutZ(row, branch.b / Zbase);
-
-			if (auto NodeTail{ NodeMap.find(branch.IdTail) }; NodeTail == NodeMap.end())
-				throw CException("Branch {} {} has wrong node {}", branch.IdHead, branch.IdTail, branch.IdTail);
-			else
-			{
-				const auto U2nom{ data.buses[NodeTail->second].Unom };
-
-				if (std::abs(kt) < 1E-7)
-					kt = 1.0;
-
-				branchktr->PutZ(row, U2nom / U1nom / kt.real());
-				branchkti->PutZ(row, kt.imag());
-			}
+			branchb->PutZ(row, -branch.b / Zbase);
 		}
-
-		
 
 		row++;
 	}
@@ -136,8 +143,8 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 		genBus->PutZ(row, gen.Id);
 		genPg->PutZN(row, gen.Pg);
 		genQg->PutZN(row, gen.Qg);
-		genQmin->PutZN(row, gen.Qmin);
-		genQmax->PutZN(row, gen.Qmax);
+		genQmin->PutZN(row, std::isinf(gen.Qmin) ? (gen.Qmin > 0 ? 1e6 : -1e6) : gen.Qmin);
+		genQmax->PutZN(row, std::isinf(gen.Qmax) ? (gen.Qmax > 0 ? 1e6 : -1e6) : gen.Qmax);
 
 		if (auto Node{ NodeMap.find(gen.Id) }; Node == NodeMap.end())
 			throw CException("Generator {} assigned to wrong node {}", row + 1, gen.Id);

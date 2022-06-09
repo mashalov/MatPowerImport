@@ -12,16 +12,17 @@
 class  MpcParser : public antlr4::Parser {
 public:
   enum {
-    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, FLOAT = 7, 
-    DOT = 8, LBS = 9, RBS = 10, LET = 11, FUNCTION = 12, INTEGER = 13, STRING = 14, 
-    MPC = 15, VARIABLE = 16, LINE_COMMENT = 17, NEWLINE = 18, COMMA = 19, 
-    WSK = 20, WS = 21, SEMI = 22
+    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
+    FLOAT = 8, DOT = 9, LBS = 10, RBS = 11, LCB = 12, RCB = 13, LET = 14, 
+    FUNCTION = 15, INTEGER = 16, SQUOTE = 17, INF = 18, STRING = 19, MPC = 20, 
+    VARIABLE = 21, LINE_COMMENT = 22, NEWLINE = 23, COMMA = 24, WSK = 25, 
+    WS = 26, SEMI = 27
   };
 
   enum {
     RuleInput = 0, RuleMpcvars = 1, RuleMpcvar = 2, RuleConstvalue = 3, 
     RuleMpcfunction = 4, RuleVallist = 5, RuleValmatrixrow = 6, RuleValmatrix = 7, 
-    RuleValarray = 8, RuleExpression = 9
+    RuleValarray = 8, RuleCellarray = 9, RuleExpression = 10
   };
 
   explicit MpcParser(antlr4::TokenStream *input);
@@ -43,6 +44,7 @@ public:
   class ValmatrixrowContext;
   class ValmatrixContext;
   class ValarrayContext;
+  class CellarrayContext;
   class ExpressionContext; 
 
   class  InputContext : public antlr4::ParserRuleContext {
@@ -126,6 +128,19 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  BusnameContext : public MpcvarContext {
+  public:
+    BusnameContext(MpcvarContext *ctx);
+
+    antlr4::tree::TerminalNode *MPC();
+    antlr4::tree::TerminalNode *DOT();
+    antlr4::tree::TerminalNode *LET();
+    ExpressionContext *expression();
+    antlr4::tree::TerminalNode *SEMI();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  BaseMVAContext : public MpcvarContext {
   public:
     BaseMVAContext(MpcvarContext *ctx);
@@ -174,6 +189,7 @@ public:
     antlr4::tree::TerminalNode *FLOAT();
     antlr4::tree::TerminalNode *INTEGER();
     antlr4::tree::TerminalNode *STRING();
+    antlr4::tree::TerminalNode *INF();
 
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -281,6 +297,21 @@ public:
 
   ValarrayContext* valarray();
 
+  class  CellarrayContext : public antlr4::ParserRuleContext {
+  public:
+    CellarrayContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *LCB();
+    ValmatrixContext *valmatrix();
+    antlr4::tree::TerminalNode *RCB();
+
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  CellarrayContext* cellarray();
+
   class  ExpressionContext : public antlr4::ParserRuleContext {
   public:
     ExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -317,6 +348,15 @@ public:
     RealconstContext(ExpressionContext *ctx);
 
     ConstvalueContext *constvalue();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  CellContext : public ExpressionContext {
+  public:
+    CellContext(ExpressionContext *ctx);
+
+    CellarrayContext *cellarray();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };

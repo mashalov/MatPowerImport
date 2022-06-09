@@ -78,6 +78,7 @@ public:
 			case 12:	Vmin = std::stod(Value); break;
 			case 13:	Vmax = std::stod(Value); break;
 			default:
+				break;
 				throw CException("BusData::SetValue - counter is out of range");
 			}
 		}
@@ -119,6 +120,7 @@ public:
 			case 12:	Dmin = std::stod(Value); break;
 			case 13:	Dmax = std::stod(Value); break;
 			default:
+				break;
 				throw CException("BranchData::SetValue - counter is out of range");
 			}
 		}
@@ -174,6 +176,7 @@ public:
 			case 20:	rampQ = std::stod(Value); break;
 			case 21:	APF = std::stod(Value); break;
 			default:
+				break;
 				throw CException("GeneratorData::SetValue - counter is out of range");
 			}
 		}
@@ -203,8 +206,29 @@ public:
 	MatPowerCase(CPlainLogger& logger);
 	void Import(const std::filesystem::path& path);
 
+	class SequentialBusNames : public SequentialVectorBase
+	{
+	private:
+		std::vector<BusData>& vec_;
+		size_t index_ = 0;
+	public:
+		SequentialBusNames(std::vector<BusData>& vec) : vec_(vec) {}
+		void SetSize(size_t Size) override {}
+
+		void New() override 
+		{
+			index_++;
+		}
+
+		void SetValue(const std::string& Value) override
+		{
+			vec_[index_ - 1].Name = Value;
+		}
+	};
+
 	SequentialVector<BusData> buses;
 	SequentialVector<GeneratorData> generators;
 	SequentialVector<BranchData> branches;
 	SequentialVector<AreaData> areas;
+	SequentialBusNames busnames;
 };

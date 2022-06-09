@@ -76,8 +76,20 @@ public:
     }
 
     antlrcpp::Any visitConstvalue(MpcParser::ConstvalueContext* ctx) override {
-        if(auto parent{ GetParent(ctx) } ; parent)
-            parent->SetValue(ctx->getText());
+        if (auto parent{ GetParent(ctx) }; parent)
+        {
+            if (ctx->getRuleIndex() == MpcParser::STRING)
+                parent->SetValue(ctx->children[1]->getText());
+            else
+                parent->SetValue(ctx->getText());
+        }
+        
+        return visitChildren(ctx);
+    }
+
+    antlrcpp::Any visitBusname(MpcParser::BusnameContext* ctx) override 
+    {
+        Parents.insert({ ctx, &mpcase_.busnames });
         return visitChildren(ctx);
     }
 
