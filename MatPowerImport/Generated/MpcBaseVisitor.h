@@ -1,5 +1,5 @@
 
-// Generated from C:/Users/Bug9/source/repos/MatPowerImport/MatPowerImport/Mpc.g4 by ANTLR 4.10.1
+// Generated from D:\source\repos\MatPowerImport\MatPowerImport\Mpc.g4 by ANTLR 4.9.2
 
 #pragma once
 
@@ -15,83 +15,83 @@
 class  MpcBaseVisitor : public MpcVisitor {
 public:
 
-  virtual std::any visitInput(MpcParser::InputContext *ctx) override {
+  virtual antlrcpp::Any visitInput(MpcParser::InputContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitMpcvars(MpcParser::MpcvarsContext *ctx) override {
+  virtual antlrcpp::Any visitMpcvars(MpcParser::MpcvarsContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitBus(MpcParser::BusContext *ctx) override {
+  virtual antlrcpp::Any visitBus(MpcParser::BusContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitGen(MpcParser::GenContext *ctx) override {
+  virtual antlrcpp::Any visitGen(MpcParser::GenContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitBranch(MpcParser::BranchContext *ctx) override {
+  virtual antlrcpp::Any visitBranch(MpcParser::BranchContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitVersion(MpcParser::VersionContext *ctx) override {
+  virtual antlrcpp::Any visitVersion(MpcParser::VersionContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitGencost(MpcParser::GencostContext *ctx) override {
+  virtual antlrcpp::Any visitGencost(MpcParser::GencostContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitBaseMVA(MpcParser::BaseMVAContext *ctx) override {
+  virtual antlrcpp::Any visitBaseMVA(MpcParser::BaseMVAContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitBusname(MpcParser::BusnameContext *ctx) override {
+  virtual antlrcpp::Any visitBusname(MpcParser::BusnameContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitConstvalue(MpcParser::ConstvalueContext *ctx) override {
+  virtual antlrcpp::Any visitConstvalue(MpcParser::ConstvalueContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitFunction(MpcParser::FunctionContext *ctx) override {
+  virtual antlrcpp::Any visitFunction(MpcParser::FunctionContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitConstlist(MpcParser::ConstlistContext *ctx) override {
+  virtual antlrcpp::Any visitConstlist(MpcParser::ConstlistContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitValmatrixrow(MpcParser::ValmatrixrowContext *ctx) override {
+  virtual antlrcpp::Any visitValmatrixrow(MpcParser::ValmatrixrowContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitValmatrix(MpcParser::ValmatrixContext *ctx) override {
+  virtual antlrcpp::Any visitValmatrix(MpcParser::ValmatrixContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitValarray(MpcParser::ValarrayContext *ctx) override {
+  virtual antlrcpp::Any visitValarray(MpcParser::ValarrayContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitCellarray(MpcParser::CellarrayContext *ctx) override {
+  virtual antlrcpp::Any visitCellarray(MpcParser::CellarrayContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitRealconst(MpcParser::RealconstContext *ctx) override {
+  virtual antlrcpp::Any visitRealconst(MpcParser::RealconstContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitVariable(MpcParser::VariableContext *ctx) override {
+  virtual antlrcpp::Any visitVariable(MpcParser::VariableContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitArray(MpcParser::ArrayContext *ctx) override {
+  virtual antlrcpp::Any visitArray(MpcParser::ArrayContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitCell(MpcParser::CellContext *ctx) override {
+  virtual antlrcpp::Any visitCell(MpcParser::CellContext *ctx) override {
     return visitChildren(ctx);
   }
 
