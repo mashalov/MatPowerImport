@@ -131,23 +131,22 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 			{
 				const auto UHnom{ data.buses[ht[0].it->second].Unom };
 				const auto UTnom{ data.buses[ht[1].it->second].Unom };
-				std::complex<double> kt{ std::polar(branch.ktr, branch.kti / 180.0 * pi) };
-				if (std::abs(kt) < 1E-7)
-					kt = 1.0;
+
+				// some cases goes with zero real part of ratio and nonzero angle shift
+				// the sign of angle shift is enigmatic
+				std::complex<double> kt{ std::polar(std::abs(branch.ktr)< 1E-7 ? 1.0 : branch.ktr, branch.kti / 180.0 * pi) };
 
 				const auto Zbase{ UHnom * UHnom / data.BaseMVA_ };
-				//const auto Zbase{ UTnom * UTnom / data.BaseMVA_ / std::norm(kt) };
+				//const auto Zbase{ UTnom * UTnom / data.BaseMVA_ * std::norm(kt) };
 
 				kt = UTnom / UHnom / kt;
 
+				// clear ratio if it is equal to 1.0 with no angle shift
 				if (std::abs(kt.real() - 1.0) < 1E-7 && kt.imag() == 0)
 					kt = 0.0;
 
 				branchktr->PutZ(row, kt.real());
 				branchkti->PutZ(row, kt.imag());
-
-
-
 				branchr->PutZ(row, branch.r * Zbase);
 				branchx->PutZ(row, branch.x * Zbase);
 				branchb->PutZ(row, -branch.b / Zbase);
