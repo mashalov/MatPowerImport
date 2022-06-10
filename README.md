@@ -9,6 +9,6 @@ and then
 
 `cmake --build .`
 
-Known Issues: sometimes the compiler may show an error in the min/max function that conflicts with the Windows header defined counterparts. A known affected source is SerializedATNView.h from the Antlr4 package. The easiest way to fix this is to simply replace std::min with (std::min) and std::max with (std::max).
+Known Issues: sometimes the compiler may show an error in the min/max function that conflicts with the Windows header defined counterparts. A known affected source is SerializedATNView.h from the Antlr4 package. The easiest way to fix this is to simply replace `std::min` with `(std::min)` and `std::max` with `(std::max)`.
 ## Usage
 Run MatPowerImport from the console with at least one argument - the path to the MATPOWER caseformat. The second argument is optional. This is the path to the exported rg2 file. If there is only one caseformat path, the resulting rg2 file will be written to the same folder with the name of the MATPOWER caseformat file and extension "rg2".
