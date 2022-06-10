@@ -4,7 +4,7 @@ This utility is designed to convert [MATPOWER](https://github.com/MATPOWER/matpo
 
 ## Build
 
-Since the MATPOWER caseformat is actually a Matlab m-file, MatPowerImport relies on [Antlr](https://github.com/antlr/antlr4) parsing. You must compile the C++ runtime antlr4-runtime.lib for debug and release builds.
+Since the MATPOWER caseformat is actually a Matlab m-file, MatPowerImport relies on [Antlr](https://github.com/antlr/antlr4) parsing. You must compile the C++ runtime antlr4-runtime.lib for debug and release builds. Also RastrWin must be installed in order to access its type library via progID.
 
 ## Usage
 
