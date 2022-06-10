@@ -1,7 +1,7 @@
 # MatPowerImport
 This utility is designed to convert [MATPOWER](https://github.com/MATPOWER/matpower) caseformat to rg2 format. The latter is the file format of [RastrWin](https://rastrwin.ru), an industrial power system analysis software, best known in Russia.
 ## Build
-Since the MATPOWER caseformat is actually a Matlab m-file, MatPowerImport relies on [Antlr](https://github.com/antlr/antlr4) parsing. You must compile the C++ runtime antlr4-runtime.lib for debug and release builds. RastrWin must also be installed to access its type library via progID. You can use CMake with included CMakeLists.txt. Locate this file in the MatPowerImport folder, create subfolder 'build' and jump into it. Run:
+Since the MATPOWER caseformat is actually a Matlab m-file, MatPowerImport relies on [Antlr](https://github.com/antlr/antlr4) parsing. You must compile the C++ runtime antlr4-runtime.lib for debug and release builds. RastrWin must also be installed to access its type library via progID. You can use CMake with included CMakeLists.txt. Locate this file in the MatPowerImport folder, create subfolder, say, 'build' and jump into it. Run:
 
 `cmake ../.`
 
