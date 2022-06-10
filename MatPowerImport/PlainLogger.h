@@ -431,7 +431,7 @@ public:
 		if (DebugLevel_ != DebugLevel)
 		{
 			// выводим в отладочный лог информацию об изменении уровня вывода
-			Debug("Debug level changed from {} to {}", DebugLevel_, DebugLevel);
+			Debug("Debug level changed from {} to {}", fmt::underlying(DebugLevel_), fmt::underlying(DebugLevel));
 			DebugLevel_ = DebugLevel;
 		}
 	}
