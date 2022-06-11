@@ -108,6 +108,13 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 		ASTRALib::IColPtr branchkti{ branchcols->Item("kti") };
 		branches->PutSize(static_cast<long>(data.branches.size()));
 
+
+		constexpr const char* yes = "yes";
+		constexpr const char* no = "no";
+
+		data.logger_.Log(LogMessageTypes::Info, "Transformer invert angle: {}", InvertTransformerAngle() ? yes : no);
+		data.logger_.Log(LogMessageTypes::Info, "Zbase optional: {}", UseOptionalZbase() ? yes : no);
+
 		const auto pi{ 4.0 * std::atan(1) };
 
 		for (const auto& branch : data.branches)
@@ -134,12 +141,23 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 
 				// some cases goes with zero real part of ratio and nonzero angle shift
 				// the sign of angle shift is enigmatic
-				std::complex<double> kt{ std::polar(std::abs(branch.ktr)< 1E-7 ? 1.0 : branch.ktr, branch.kti / 180.0 * pi) };
 
-				const auto Zbase{ UHnom * UHnom / data.BaseMVA_ };
-				//const auto Zbase{ UTnom * UTnom / data.BaseMVA_ * std::norm(kt) };
+				// the transformer angle is uncertainly defined in caseformat
+				// so we have option to account it positive (default) or negative
+				const double Angle{ (InvertTransformerAngle_ ? -branch.kti : branch.kti) / 180.0 * pi };
+				std::complex<double> kt{ std::polar(std::abs(branch.ktr)< 1E-7 ? 1.0 : branch.ktr, Angle) };
+
+				auto Zbase{ 1.0 / data.BaseMVA_ };
+
+				// Zbase is also uncertain. There are two opinions 
+				// on its calculation
+				if (UseOptionalZbase_)
+					Zbase *= UHnom * UHnom * std::norm(kt);		// alternative mode proposed
+				else
+					Zbase *= UHnom * UHnom;						// seems to be matpower default mode
 
 				kt = UTnom / UHnom / kt;
+					
 
 				// clear ratio if it is equal to 1.0 with no angle shift
 				if (std::abs(kt.real() - 1.0) < 1E-7 && kt.imag() == 0)
