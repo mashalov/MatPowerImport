@@ -9,9 +9,9 @@ Known Issues: sometimes the compiler may show an error in the min/max function t
 ## Usage
 Run MatPowerImport from the console with at least one argument - the path to the MATPOWER caseformat. The second argument is optional. This is the path to the exported rg2 file. If there is only one caseformat path, the resulting rg2 file will be written to the same folder with the name of the MATPOWER caseformat file and extension "rg2". 
 There are some options to run MatPowerImport. Place options before pathames as follows:  
-`[options] (matpower m-file path) [rastrwin rg2-file path]`  
--angle - invert transformer angle  
--zbopt - optional Zbase calculation: Zbase = Vf^2/baseMVA (default is Zbase = Vf^2*|ratio/angle|^2/baseMVA)  
--lf    - solve load flow with rastr before export  
--flat  - solve load flow with rastr before export using flat start  
--stats - solve load flow with rastr before export and print difference statistics  
+`[options] (matpower m-file path) [RastrWin rg2-file path]`  
+-angle - invert transformer angle.  
+-zbopt - optional Zbase calculation: Zbase = Vf^2/baseMVA (default is Zbase = Vf^2*|ratio/angle|^2/baseMVA).
+-lf    - solve load flow with RastrWin before export. 
+-flat  - solve load flow with RastrWin before export using flat start. 
+-stats - solve load flow with RastrWin before export and print difference statistics  (standard deviations of voltage magnitudes and angles between caseformat and RastrWin solutions.  
