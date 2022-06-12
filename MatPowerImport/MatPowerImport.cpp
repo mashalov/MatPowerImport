@@ -16,7 +16,10 @@ int main(int argc, char* argv[])
     {
         logger.Log(LogMessageTypes::Info, "Usage: [options] (matpower m-file path) [rastrwin rg2-file path]");
         logger.Log(LogMessageTypes::Info, "\t-angle - invert transformer angle");
-        logger.Log(LogMessageTypes::Info, "\t-zbopt - optional Zbase calculation: Zbase = Vf^2*|ratio/_angle|^2/baseMVA (default is Zbase = Vf^2/baseMVA)");
+        logger.Log(LogMessageTypes::Info, "\t-zbopt - optional Zbase calculation: Zbase = Vf^2/baseMVA (default is Zbase = Vf^2*|ratio/_angle|^2/baseMVA)");
+        logger.Log(LogMessageTypes::Info, "\t-lf    - solve load flow with rastr before export");
+        logger.Log(LogMessageTypes::Info, "\t-flat  - solve load flow with rastr before export using flat start");
+        logger.Log(LogMessageTypes::Info, "\t-stats - solve load flow with rastr before export and print difference statistics");
         return 1;
     }
 
@@ -32,7 +35,13 @@ int main(int argc, char* argv[])
             rastr.SetInvertTransformerAngle(true);
         else if(opt == "-zbopt")
             rastr.SetUseOptionalZbase(true);
-        
+        else if (opt == "-lf")
+            rastr.SetLoadFlow(true);
+        else if (opt == "-flat")
+            rastr.SetLoadFlowFlat(true);
+        else if (opt == "-stats")
+            rastr.SetLoadFlowStats(true);
+                
         if (opt.length() > 0 && opt[0] != '-')
         {
             switch (pathes)

@@ -2,7 +2,6 @@
 #include <map>
 #include <array>
 #include "RastrWinIO.h"
-#import "progid:Astra.Rastr.1" named_guids
 
 std::filesystem::path RastrWinIO::GetTemplatesPath() const
 {
@@ -31,7 +30,6 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 	try
 	{
 		CoInitialize(NULL);
-		ASTRALib::IRastrPtr rastr;
 		if (FAILED(rastr.CreateInstance(ASTRALib::CLSID_Rastr)))
 			throw CExceptionGLE("RastrWin unavailable");
 
@@ -45,6 +43,7 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 		ASTRALib::ITablePtr branches{ tables->Item("vetv") };
 		ASTRALib::ITablePtr generators{ tables->Item("Generator") };
 		ASTRALib::ITablePtr areas{ tables->Item("area") };
+		ASTRALib::ITablePtr param{ tables->Item("com_regim") };
 
 		long row{ 0 };
 		nodes->PutSize(static_cast<long>(data.buses.size()));
@@ -115,7 +114,7 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 		data.logger_.Log(LogMessageTypes::Info, "Transformer invert angle: {}", InvertTransformerAngle() ? yes : no);
 		data.logger_.Log(LogMessageTypes::Info, "Zbase optional: {}", UseOptionalZbase() ? yes : no);
 
-		const auto pi{ 4.0 * std::atan(1) };
+
 
 		for (const auto& branch : data.branches)
 		{
@@ -152,9 +151,10 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 				// Zbase is also uncertain. There are two opinions 
 				// on its calculation
 				if (UseOptionalZbase_)
-					Zbase *= UHnom * UHnom * std::norm(kt);		// alternative mode proposed
+					Zbase *= UHnom * UHnom;						// alternative mode in some caseformats
 				else
-					Zbase *= UHnom * UHnom;						// seems to be matpower default mode
+					Zbase *= UHnom * UHnom * std::norm(kt);		// seems to be matpower default mode
+					
 
 				kt = UTnom / UHnom / kt;
 					
@@ -213,6 +213,33 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 			row++;
 		}
 
+		ASTRALib::IColsPtr paramCols{ param->Cols };
+		ASTRALib::IColPtr flat{ paramCols->Item("flot") };
+		ASTRALib::IColPtr itmax{ paramCols->Item("it_max") };
+		flat->PutZ(0, LoadFlowFlat() ? 0 : 1);
+		itmax->PutZ(0, 500);
+
+		
+
+		constexpr const char* flatmsg = "from the flat start";
+		constexpr const char* noflatmsg = "from the original solution";
+
+		if (LoadFlow())
+		{
+			const auto ret{ rastr->rgm("") };
+			if (ret == ASTRALib::AST_OK)
+				data.logger_.Log(LogMessageTypes::Info, "Load flow solved {}", LoadFlowFlat() ? flatmsg : noflatmsg);
+			else
+				data.logger_.Log(LogMessageTypes::Error, "Load flow failed {}", LoadFlowFlat() ? flatmsg : noflatmsg);
+		}
+
+		if (LoadFlowStats())
+		{
+			const auto stats{ Stats(data) };
+			data.logger_.Log(LogMessageTypes::Info, "Vstd : {} Astd : {}", stats.Vstd, stats.Astd);
+
+		}
+
 		rastr->Save(stringutils::COM_encode(path.string()).c_str(), stringutils::COM_encode(rg2template.string()).c_str());
 		data.logger_.Log(LogMessageTypes::Info, "RastrWin model is exported to {}", path.string());
 	}
@@ -220,4 +247,36 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 	{
 		throw CException("RastrWin error: {}", stringutils::COM_decode(ex.Description()));
 	}
+}
+
+RastrWinIO::LFStats RastrWinIO::Stats(const MatPowerCase& data) const
+{
+	RastrWinIO::LFStats stats;
+	auto tables{ rastr->Tables };
+	ASTRALib::ITablePtr nodes{ tables->Item("node") };
+	ASTRALib::ITablePtr generators{ tables->Item("Generator") };
+
+	ASTRALib::IColsPtr nodecols{ nodes->Cols };
+	ASTRALib::IColPtr nodeV{ nodecols->Item("vras") };
+	ASTRALib::IColPtr nodeDelta{ nodecols->Item("delta") };
+
+	for (long row = 0; row < nodes->GetSize(); row++)
+	{
+		if (row < data.buses.size())
+		{
+			const auto& bus{ data.buses[row] };
+			double diff{ nodeV->GetZ(row).dblVal - bus.V * bus.Unom };
+			stats.Vstd += diff * diff;
+			diff = nodeDelta->GetZ(row).dblVal * 180.0 / pi - bus.Delta;
+			stats.Astd += diff * diff;
+		}
+	}
+
+	if (nodes->GetSize())
+	{
+		stats.Vstd = std::sqrt(stats.Vstd) / nodes->GetSize();
+		stats.Astd = std::sqrt(stats.Astd) / nodes->GetSize();
+	}
+
+	return stats;
 }

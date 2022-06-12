@@ -1,32 +1,71 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="fmt\src\format.cc" />
-    <ClCompile Include="fmt\src\os.cc" />
-    <ClCompile Include="Generated\MpcBaseVisitor.cpp" />
-    <ClCompile Include="Generated\MpcLexer.cpp" />
-    <ClCompile Include="Generated\MpcParser.cpp" />
-    <ClCompile Include="Generated\MpcVisitor.cpp" />
-    <ClCompile Include="MatPowerData.cpp" />
-    <ClCompile Include="MatPowerImport.cpp" />
-    <ClCompile Include="PlainLogger.cpp" />
-    <ClCompile Include="RastrWinIO.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="Mpc.g4" />
+    <ClCompile Include="fmt\src\format.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MatPowerData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MatPowerImport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Generated\MpcBaseVisitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Generated\MpcLexer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Generated\MpcParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Generated\MpcVisitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fmt\src\os.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlainLogger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RastrWinIO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{F55E2D50-9FAA-3DBB-A7E0-57FD5A7C9DF3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{17e24f75-f47c-44df-bcba-840265889d45}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AntlrASTVisitor.h" />
-    <ClInclude Include="Exceptions.h" />
-    <ClInclude Include="MatPowerData.h" />
-    <ClInclude Include="PlainLogger.h" />
-    <ClInclude Include="RastrWinIO.h" />
-    <ClInclude Include="SafeQueue.hpp" />
-    <ClInclude Include="stringutils.h" />
+    <ClInclude Include="AntlrASTVisitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MatPowerData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlainLogger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RastrWinIO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stringutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SafeQueue.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Exceptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Mpc.g4">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>
