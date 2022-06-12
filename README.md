@@ -11,7 +11,7 @@ Run MatPowerImport from the console with at least one argument - the path to the
 There are some options to run MatPowerImport. Place options before pathames as follows:  
 `[options] (matpower m-file path) [RastrWin rg2-file path]`  
 -angle - invert transformer angle.  
--zbopt - optional Zbase calculation: Zbase = Vf^2/baseMVA (default is Zbase = Vf^2*|ratio/angle|^2/baseMVA).
--lf    - solve load flow with RastrWin before export. 
--flat  - solve load flow with RastrWin before export using flat start. 
+-zbopt - optional Zbase calculation: Zbase = Vf^2/baseMVA (default is Zbase = Vf^2*|ratio/angle|^2/baseMVA).  
+-lf    - solve load flow with RastrWin before export.   
+-flat  - solve load flow with RastrWin before export using flat start.   
 -stats - solve load flow with RastrWin before export and print difference statistics  (standard deviations of voltage magnitudes and angles between caseformat and RastrWin solutions.  
