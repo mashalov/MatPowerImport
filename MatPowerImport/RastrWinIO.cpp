@@ -210,14 +210,13 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 		for (const auto& area : data.areas)
 		{
 			areaId->PutZ(row, area.Id);
-
 			row++;
 		}
 
 		ASTRALib::IColsPtr paramCols{ param->Cols };
 		ASTRALib::IColPtr flat{ paramCols->Item("flot") };
 		ASTRALib::IColPtr itmax{ paramCols->Item("it_max") };
-		flat->PutZ(0, LoadFlowFlat() ? 0 : 1);
+		flat->PutZ(0, LoadFlowFlat() ? 1 : 0);
 		itmax->PutZ(0, 500);
 
 		
