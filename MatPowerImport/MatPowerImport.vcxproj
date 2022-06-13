@@ -211,6 +211,7 @@
     <ClCompile Include="RastrWinIO.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AntlrASTErrorListener.h" />
     <ClInclude Include="AntlrASTVisitor.h" />
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="MatPowerData.h" />

@@ -32,9 +32,9 @@ int main(int argc, char* argv[])
         std::string opt{ argv[cmdindex] };
         stringutils::tolower(opt);
         stringutils::trim(opt);
-        if(opt == "-angle")
+        if (opt == "-angle")
             rastr.SetInvertTransformerAngle(true);
-        else if(opt == "-zbopt")
+        else if (opt == "-zbopt")
             rastr.SetUseOptionalZbase(true);
         else if (opt == "-lf")
             rastr.SetLoadFlow(true);
@@ -42,6 +42,8 @@ int main(int argc, char* argv[])
             rastr.SetLoadFlowFlat(true);
         else if (opt == "-stats")
             rastr.SetLoadFlowStats(true);
+        else if (opt == "-statsonly")
+            rastr.SetStatsOly(true);
                 
         if (opt.length() > 0 && opt[0] != '-')
         {
@@ -75,6 +77,7 @@ int main(int argc, char* argv[])
     try
     {
         MatPowerCase Case(logger);
+        Case.SetSilent(rastr.StatsOnly());
         Case.Import(importpath);
         rastr.Export(Case, rastrwinexportpath);
     }

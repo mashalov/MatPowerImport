@@ -40,6 +40,8 @@ public:
 
 class MatPowerCase
 {
+protected:
+	bool Silent_ = false;
 public:
 	CPlainLogger& logger_;
 
@@ -205,6 +207,8 @@ public:
 
 	MatPowerCase(CPlainLogger& logger);
 	void Import(const std::filesystem::path& path);
+	bool Silent() const { return Silent_; }
+	void SetSilent(bool Silent) { Silent_ = Silent; }
 
 	class SequentialBusNames : public SequentialVectorBase
 	{

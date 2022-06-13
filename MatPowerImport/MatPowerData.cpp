@@ -36,7 +36,8 @@ void MatPowerCase::Import(const std::filesystem::path& path)
     MpcParserVisitor visitor(*this);
     visitor.visit(tree);
 
-    logger_.Log(LogMessageTypes::Info, "MatPower caseformat is imported from {}", path.string());
+    if(!Silent_)
+        logger_.Log(LogMessageTypes::Info, "MatPower caseformat is imported from {}", path.string());
 
     std::set<long> Areas;
     for (const auto& bus : buses)
@@ -54,11 +55,14 @@ void MatPowerCase::Import(const std::filesystem::path& path)
 
     constexpr const char* ReportMask = "{:<15} {:>15}";
 
-    logger_.Log(LogMessageTypes::Info, ReportMask, "Base MVA", BaseMVA_);
-    logger_.Log(LogMessageTypes::Info, ReportMask, "Buses", buses.size());
-    logger_.Log(LogMessageTypes::Info, ReportMask, "Branches", branches.size());
-    logger_.Log(LogMessageTypes::Info, ReportMask, "Generators", generators.size());
-    logger_.Log(LogMessageTypes::Info, ReportMask, "Areas", areas.size());
+    if (!Silent_)
+    {
+        logger_.Log(LogMessageTypes::Info, ReportMask, "Base MVA", BaseMVA_);
+        logger_.Log(LogMessageTypes::Info, ReportMask, "Buses", buses.size());
+        logger_.Log(LogMessageTypes::Info, ReportMask, "Branches", branches.size());
+        logger_.Log(LogMessageTypes::Info, ReportMask, "Generators", generators.size());
+        logger_.Log(LogMessageTypes::Info, ReportMask, "Areas", areas.size());
+    }
 
     if (BaseMVA_ <= 0)
         throw CException("BaseMVA {} seems wrong", BaseMVA_);

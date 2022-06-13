@@ -111,10 +111,11 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 		constexpr const char* yes = "yes";
 		constexpr const char* no = "no";
 
-		data.logger_.Log(LogMessageTypes::Info, "Transformer invert angle: {}", InvertTransformerAngle() ? yes : no);
-		data.logger_.Log(LogMessageTypes::Info, "Zbase optional: {}", UseOptionalZbase() ? yes : no);
-
-
+		if (!StatsOnly())
+		{
+			data.logger_.Log(LogMessageTypes::Info, "Transformer invert angle: {}", InvertTransformerAngle() ? yes : no);
+			data.logger_.Log(LogMessageTypes::Info, "Zbase optional: {}", UseOptionalZbase() ? yes : no);
+		}
 
 		for (const auto& branch : data.branches)
 		{
@@ -228,7 +229,10 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 		{
 			const auto ret{ rastr->rgm("") };
 			if (ret == ASTRALib::AST_OK)
-				data.logger_.Log(LogMessageTypes::Info, "Load flow solved {}", LoadFlowFlat() ? flatmsg : noflatmsg);
+			{
+				if(!StatsOnly())
+					data.logger_.Log(LogMessageTypes::Info, "Load flow solved {}", LoadFlowFlat() ? flatmsg : noflatmsg);
+			}
 			else
 				data.logger_.Log(LogMessageTypes::Error, "Load flow failed {}", LoadFlowFlat() ? flatmsg : noflatmsg);
 		}
@@ -241,7 +245,8 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 		}
 
 		rastr->Save(stringutils::COM_encode(path.string()).c_str(), stringutils::COM_encode(rg2template.string()).c_str());
-		data.logger_.Log(LogMessageTypes::Info, "RastrWin model is exported to {}", path.string());
+		if(!StatsOnly())
+			data.logger_.Log(LogMessageTypes::Info, "RastrWin model is exported to {}", path.string());
 	}
 	catch (const _com_error& ex)
 	{
@@ -274,8 +279,8 @@ RastrWinIO::LFStats RastrWinIO::Stats(const MatPowerCase& data) const
 
 	if (nodes->GetSize())
 	{
-		stats.Vstd = std::sqrt(stats.Vstd) / nodes->GetSize();
-		stats.Astd = std::sqrt(stats.Astd) / nodes->GetSize();
+		stats.Vstd = std::sqrt(stats.Vstd / nodes->GetSize());
+		stats.Astd = std::sqrt(stats.Astd / nodes->GetSize());
 	}
 
 	return stats;

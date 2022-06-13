@@ -9,7 +9,8 @@ class RastrWinIO
 	bool UseOptionalZbase_ = false;
 	bool LoadFlow_ = false;
 	bool LoadFlowFlat_ = false;
-	bool LoadFlowStats_= false;
+	bool LoadFlowStats_ = false;
+	bool StatsOnly_ = false;
 
 	ASTRALib::IRastrPtr rastr;
 
@@ -31,17 +32,25 @@ public:
 	void SetLoadFlow(bool LoadFlow) { LoadFlow_ = LoadFlow; }
 	bool LoadFlowFlat() const { return LoadFlowFlat_; }
 	LFStats Stats(const MatPowerCase& data) const;
-	void SetLoadFlowFlat(bool LoadFlowFlat) 
-	{ 
-		LoadFlowFlat_ = LoadFlowFlat; 
+	void SetLoadFlowFlat(bool LoadFlowFlat)
+	{
+		LoadFlowFlat_ = LoadFlowFlat;
 		if (LoadFlowFlat)
 			SetLoadFlow(LoadFlowFlat);
 	}
 	bool LoadFlowStats() const { return LoadFlowStats_; }
-	void SetLoadFlowStats(bool LoadFlowStats) 
-	{ 
-		LoadFlowStats_ = LoadFlowStats; 
-		if(LoadFlowStats)
+	void SetLoadFlowStats(bool LoadFlowStats)
+	{
+		LoadFlowStats_ = LoadFlowStats;
+		if (LoadFlowStats)
 			SetLoadFlow(LoadFlowStats);
 	}
+	bool StatsOnly() const { return StatsOnly_; }
+	void SetStatsOly(bool StatsOnly)
+	{
+		SetLoadFlowStats(true);
+		StatsOnly_ = StatsOnly;
+	}
 };
+
+
