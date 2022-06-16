@@ -9,8 +9,8 @@ int main(int argc, char* argv[])
     CPlainRastrEventSource eventSource;
     CPlainLogger logger(&eventSource);
 
-    std::filesystem::path importpath;
-    std::filesystem::path rastrwinexportpath;
+    std::filesystem::path matpowerpath;
+    std::filesystem::path rastrwinpath;
 
     if (argc == 1)
     {
@@ -25,6 +25,8 @@ int main(int argc, char* argv[])
     }
 
     RastrWinIO rastr;
+
+    bool Import = true;
 
     int pathes{ 0 };
     for (int cmdindex = 1; cmdindex < argc; cmdindex++)
@@ -44,42 +46,69 @@ int main(int argc, char* argv[])
             rastr.SetLoadFlowStats(true);
         else if (opt == "-statsonly")
             rastr.SetStatsOly(true);
+        else if (opt == "-export")
+            Import = false;
                 
         if (opt.length() > 0 && opt[0] != '-')
         {
             switch (pathes)
             {
             case 0:
-                importpath = argv[cmdindex];
+                matpowerpath = argv[cmdindex];
                 break;
             case 1:
-                rastrwinexportpath = argv[cmdindex];
+                rastrwinpath = argv[cmdindex];
                 break;
             }
             pathes++;
         }
     }
 
+
+
     constexpr const char* rg2 = ".rg2";
-        
-    if (rastrwinexportpath.empty())
-    {
-        rastrwinexportpath = importpath;
-        rastrwinexportpath.replace_extension(rg2);
-    }
-    else if (!rastrwinexportpath.has_extension() && importpath.has_filename())
-    {
-        rastrwinexportpath /= importpath.filename();
-        rastrwinexportpath.replace_extension(rg2);
-    }
+    constexpr const char* mext = ".mb";
      
     
     try
     {
         MatPowerCase Case(logger);
-        Case.SetSilent(rastr.StatsOnly());
-        Case.Import(importpath);
-        rastr.Export(Case, rastrwinexportpath);
+        if (Import)
+        {
+            if (rastrwinpath.empty())
+            {
+                rastrwinpath = matpowerpath;
+                rastrwinpath.replace_extension(rg2);
+            }
+            else if (!rastrwinpath.has_extension() && matpowerpath.has_filename())
+            {
+                rastrwinpath /= matpowerpath.filename();
+                rastrwinpath.replace_extension(rg2);
+            }
+
+            Case.SetSilent(rastr.StatsOnly());
+            Case.Import(matpowerpath);
+            rastr.Export(Case, rastrwinpath);
+        }
+        else
+        {
+            std::swap(matpowerpath, rastrwinpath);
+
+            if (matpowerpath.empty())
+            {
+                matpowerpath = rastrwinpath;
+                matpowerpath.replace_extension(mext);
+            }
+            else if (!matpowerpath.has_extension() && rastrwinpath.has_filename())
+            {
+                matpowerpath /= rastrwinpath.filename();
+                matpowerpath.replace_extension(mext);
+            }
+
+            Case.SetSilent(rastr.StatsOnly());
+            rastr.Import(Case, rastrwinpath);
+            Case.Export(matpowerpath);
+        }
     }
     catch (const std::exception& ex)
     {
