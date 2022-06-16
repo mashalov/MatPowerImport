@@ -38,6 +38,7 @@ class RastrWinIO
 		ASTRALib::IColPtr branchb;
 		ASTRALib::IColPtr branchktr;
 		ASTRALib::IColPtr branchkti;
+		ASTRALib::IColPtr branchsta;
 
 		ASTRALib::IColPtr genBus;
 		ASTRALib::IColPtr genId;
@@ -109,6 +110,7 @@ public:
 	}
 
 	static constexpr const char* cszRastrWinUnavailable = "RastrWin Unavailable";
+	static constexpr const char* cszBranchWrongNode = "Branch {}-{} has wrong node{}";
 };
 
 

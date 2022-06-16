@@ -37,11 +37,14 @@ void RastrWinIO::Import(MatPowerCase& data, const std::filesystem::path& path)
 		data.buses.clear();
 		data.buses.reserve(db.nodes->GetSize());
 		long size{ db.nodes->GetSize() };
+
+		std::map<long, long> NodeMap;
+
 		for (long row{ 0 }; row < size ; row++)
 		{
 			data.buses.push_back({});
 			auto& bus{ data.buses.back() };
-			bus.Id = db.nodeId->GetZN(row).lVal;
+			bus.Id = db.nodeId->GetZ(row).lVal;
 			bus.Unom = db.nodeUnom->GetZN(row).dblVal;
 			bus.Pn = db.nodePn->GetZN(row).dblVal;
 			bus.Qn = db.nodeQn->GetZN(row).dblVal;
@@ -67,6 +70,52 @@ void RastrWinIO::Import(MatPowerCase& data, const std::filesystem::path& path)
 				case 0:
 					bus.Type = 3;
 				}
+			}
+
+			NodeMap.insert({ bus.Id, row });
+		}
+
+
+		size = db.branches->GetSize();
+		for (long row{ 0 }; row < size; row++)
+		{
+			data.branches.push_back({});
+			auto& branch{ data.branches.back() };
+			branch.IdHead = db.branchHead->GetZ(row).lVal;
+			branch.IdTail = db.branchTail->GetZ(row).lVal;
+
+
+			struct NodeIndex
+			{
+				long Id;
+				decltype(NodeMap)::const_iterator it;
+			};
+
+			std::array< NodeIndex, 2 > ht{ {{ branch.IdHead, NodeMap.end() } , { branch.IdTail, NodeMap.end() } } };
+
+			for (auto&& node : ht)
+				if (node.it = NodeMap.find(node.Id); node.it == NodeMap.end())
+					data.logger_.Log(LogMessageTypes::Error, cszBranchWrongNode, branch.IdHead, branch.IdTail, node.Id);
+
+			if (ht[0].it != NodeMap.end() && ht[1].it != NodeMap.end())
+			{
+				const auto UHnom{ data.buses[ht[0].it->second].Unom };
+				const auto UTnom{ data.buses[ht[1].it->second].Unom };
+
+				std::complex<double> kt{ db.branchktr->GetZN(row).dblVal, db.branchkti->GetZN(row).dblVal };
+				if (std::abs(kt.real()) < 1e-7)
+					kt.real(1.0);
+
+				kt = UTnom / UHnom / kt;
+
+				auto Zbase{ UHnom * UHnom * std::norm(kt) / data.BaseMVA_ };
+
+				branch.r = db.branchr->GetZN(row).dblVal / Zbase;
+				branch.x = db.branchx->GetZN(row).dblVal / Zbase;
+				branch.b = -db.branchb->GetZN(row).dblVal * Zbase;
+				branch.ktr = std::abs(kt);
+				branch.kti = std::arg(kt) * 180.0 / pi;
+				branch.State = db.branchsta->GetZ(row).lVal ? 1 : 0;
 			}
 		}
 	}
@@ -146,7 +195,7 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 
 			for (auto&& node : ht)
 				if (node.it = NodeMap.find(node.Id); node.it == NodeMap.end())
-					data.logger_.Log(LogMessageTypes::Error, "Branch {} {} has wrong node {}", branch.IdHead, branch.IdTail, node.Id);
+					data.logger_.Log(LogMessageTypes::Error, cszBranchWrongNode, branch.IdHead, branch.IdTail, node.Id);
 
 			if (ht[0].it != NodeMap.end() && ht[1].it != NodeMap.end())
 			{
@@ -183,6 +232,7 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 				db.branchr->PutZ(row, branch.r * Zbase);
 				db.branchx->PutZ(row, branch.x * Zbase);
 				db.branchb->PutZ(row, -branch.b / Zbase);
+				db.branchsta->PutZ(row, branch.State ? 0 : 1);
 			}
 
 			row++;
@@ -325,6 +375,7 @@ void RastrWinIO::RastrWinDB::Init()
 	branchb = branchcols->Item("b");
 	branchktr = branchcols->Item("ktr");
 	branchkti = branchcols->Item("kti");
+	branchsta = branchcols->Item("sta");
 
 
 	ASTRALib::IColsPtr gencols{ generators->Cols };

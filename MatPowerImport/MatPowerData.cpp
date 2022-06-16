@@ -83,23 +83,17 @@ void MatPowerCase::Export(const std::filesystem::path& path)
     mcase << fmt::format("function mpc = {};", path.filename().replace_extension().string()) << std::endl;
     mcase << "mpc.version='2';" << std::endl;
     mcase << fmt::format("mpc.baseMVA={};", BaseMVA_) << std::endl;
-    //" % bus_i	type	Pd	Qd	Gs	Bs	area	Vm	Va	baseKV	zone	Vmax	Vmin"
-
     mcase << "mpc.bus = [" << std::endl;
     mcase << fmt::format("%{:>9} {:>3} {:>15} {:>15} {:>15} {:>15} {:>7} {:>15} {:>15} {:>15} {:>7} {:>15} {:>15}",
         "Id",
         "Tpe",
-        "Pd",
-        "Qd",
-        "Gs",
-        "Bs",
+        "Pd", "Qd",
+        "Gs", "Bs",
         "area",
-        "Vm",
-        "Va",
+        "Vm", "Va",
         "baseKv",
         "zone",
-        "Vmax",
-        "Vmin" )<< std::endl;
+        "Vmax", "Vmin" )<< std::endl;
     for (const auto& bus : buses)
     {
         mcase << fmt::format("{:10} {:3} {:15g} {:15g} {:15g} {:15g} {:7} {:15g} {:15g} {:15g} {:7} {:15g} {:15g};",
@@ -118,5 +112,32 @@ void MatPowerCase::Export(const std::filesystem::path& path)
             bus.Vmin) << std::endl;
     }
     (closearray)();
-    
+
+    mcase << "mpc.branch = [" << std::endl;
+    mcase << fmt::format("%{:>9} {:>10} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>3} {:>15} {:>15}",
+        "fbus",
+        "tbus",
+        "r", "x", "b",
+        "rateA", "rateB", "rateC",
+        "ratio", "angle", 
+        "sta",
+        "angmin", "angmax") << std::endl;
+    for (const auto& branch : branches)
+    {
+        mcase << fmt::format("{:10} {:10} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:3} {:15g} {:15g};",
+            branch.IdHead,
+            branch.IdTail,
+            branch.r,
+            branch.x,
+            branch.b,
+            branch.rateA,
+            branch.rateB,
+            branch.rateC,
+            branch.ktr,
+            branch.kti,
+            branch.State,
+            branch.Dmin,
+            branch.Dmax) << std::endl;
+    }
+    (closearray)();
 }
