@@ -80,7 +80,7 @@ void MatPowerCase::Export(const std::filesystem::path& path)
         mcase << "];" << std::endl;
     };
 
-    mcase << fmt::format("function mpc = {};", path.filename().replace_extension().string()) << std::endl;
+    mcase << fmt::format("function mpc = {}", path.filename().replace_extension().string()) << std::endl;
     mcase << "mpc.version='2';" << std::endl;
     mcase << fmt::format("mpc.baseMVA={};", BaseMVA_) << std::endl;
     mcase << "mpc.bus = [" << std::endl;
@@ -138,6 +138,47 @@ void MatPowerCase::Export(const std::filesystem::path& path)
             branch.State,
             branch.Dmin,
             branch.Dmax) << std::endl;
+    }
+    (closearray)();
+
+    mcase << "mpc.gen = [" << std::endl;
+    mcase << fmt::format("%{:>9} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>5} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15}",
+        "bus",
+        "Pg", "Qg",
+        "Qmax", "Qmin",
+        "Vg",
+        "mBase",
+        "state",
+        "Pmax", "Pmin",
+        "Pc1", "Pc2",
+        "Qc1min", "Qc1max",
+        "Qc2min", "Qc2max",
+        "ramp", "ramp_10", "ramp_30",
+        "ramp_Q", "APF") << std::endl;
+    for (const auto& gen : generators)
+    {
+        mcase << fmt::format("{:10} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:5} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g};",
+            gen.Id,
+            gen.Pg,
+            gen.Qg,
+            gen.Qmax,
+            gen.Qmin,
+            gen.Vg,
+            gen.Sbase,
+            gen.State,
+            gen.Pmax,
+            gen.Pmin,
+            gen.Pc1,
+            gen.Pc2,
+            gen.Qc1min,
+            gen.Qc1max,
+            gen.Qc2min,
+            gen.Qc2max,
+            gen.ramp,
+            gen.ramp10,
+            gen.ramp30,
+            gen.rampQ,
+            gen.APF) << std::endl;
     }
     (closearray)();
 }

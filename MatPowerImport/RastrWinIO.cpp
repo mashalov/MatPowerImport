@@ -112,11 +112,30 @@ void RastrWinIO::Import(MatPowerCase& data, const std::filesystem::path& path)
 
 				branch.r = db.branchr->GetZN(row).dblVal / Zbase;
 				branch.x = db.branchx->GetZN(row).dblVal / Zbase;
-				branch.b = -db.branchb->GetZN(row).dblVal * Zbase;
+				branch.b = -db.branchb->GetZ(row).dblVal * Zbase;
 				branch.ktr = std::abs(kt);
 				branch.kti = std::arg(kt) * 180.0 / pi;
-				branch.State = db.branchsta->GetZ(row).lVal ? 1 : 0;
+				branch.State = db.branchsta->GetZ(row).lVal ? 0 : 1;
 			}
+		}
+
+		size = db.generators->GetSize();
+		for (long row{ 0 }; row < size; row++)
+		{
+			data.generators.push_back({});
+			auto& gen{ data.generators.back() };
+			gen.Id = db.genBus->GetZ(row).lVal;
+			gen.Pg = db.genPg->GetZN(row).dblVal;
+			gen.Qg = db.genQg->GetZN(row).dblVal;
+			gen.Qmin = db.genQmin->GetZN(row).dblVal;
+			gen.Qmax = db.genQmax->GetZN(row).dblVal;
+
+			if (auto Node{ NodeMap.find(gen.Id) }; Node == NodeMap.end())
+				throw CException(cszGeneratorWrongNode, row + 1, gen.Id);
+			else
+				gen.Vg = db.nodeVref->GetZN(Node->second).dblVal / data.buses[Node->second].Unom;
+
+			row++;
 		}
 	}
 
@@ -252,7 +271,7 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 			db.genQmax->PutZN(row, std::isinf(gen.Qmax) ? (gen.Qmax > 0 ? 1e6 : -1e6) : gen.Qmax);
 
 			if (auto Node{ NodeMap.find(gen.Id) }; Node == NodeMap.end())
-				throw CException("Generator {} assigned to wrong node {}", row + 1, gen.Id);
+				throw CException(cszGeneratorWrongNode, row + 1, gen.Id);
 			else
 				db.nodeVref->PutZN(Node->second, gen.Vg * data.buses[Node->second].Unom);
 

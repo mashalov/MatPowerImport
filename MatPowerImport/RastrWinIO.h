@@ -111,6 +111,7 @@ public:
 
 	static constexpr const char* cszRastrWinUnavailable = "RastrWin Unavailable";
 	static constexpr const char* cszBranchWrongNode = "Branch {}-{} has wrong node{}";
+	static constexpr const char* cszGeneratorWrongNode = "Generator {} assigned to wrong node {}";
 };
 
 
