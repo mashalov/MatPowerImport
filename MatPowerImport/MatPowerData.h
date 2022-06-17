@@ -205,6 +205,8 @@ public:
 
 	double BaseMVA_ = 100.0;
 
+	std::string comment_;
+
 	MatPowerCase(CPlainLogger& logger);
 	void Import(const std::filesystem::path& path);
 	void Export(const std::filesystem::path& path);

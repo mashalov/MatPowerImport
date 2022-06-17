@@ -38,6 +38,8 @@ void RastrWinIO::Import(MatPowerCase& data, const std::filesystem::path& path)
 		data.buses.reserve(db.nodes->GetSize());
 		long size{ db.nodes->GetSize() };
 
+		data.comment_ = fmt::format("Exported from RastrWin {}", path.filename().string());
+
 		std::map<long, long> NodeMap;
 
 		for (long row{ 0 }; row < size ; row++)
@@ -127,15 +129,20 @@ void RastrWinIO::Import(MatPowerCase& data, const std::filesystem::path& path)
 			gen.Id = db.genBus->GetZ(row).lVal;
 			gen.Pg = db.genPg->GetZN(row).dblVal;
 			gen.Qg = db.genQg->GetZN(row).dblVal;
-			gen.Qmin = db.genQmin->GetZN(row).dblVal;
-			gen.Qmax = db.genQmax->GetZN(row).dblVal;
+
+			double Qmin{ db.genQmin->GetZN(row).dblVal };
+			double Qmax{ db.genQmax->GetZN(row).dblVal };
+			if (std::abs(Qmax - Qmin) < 1e-7 && std::abs(Qmax) < 1e-7)
+			{
+				//Qmin = -1e6;	Qmax = 1e6;
+			}
+			gen.Qmin = Qmin;
+			gen.Qmax = Qmax;
 
 			if (auto Node{ NodeMap.find(gen.Id) }; Node == NodeMap.end())
 				throw CException(cszGeneratorWrongNode, row + 1, gen.Id);
 			else
 				gen.Vg = db.nodeVref->GetZN(Node->second).dblVal / data.buses[Node->second].Unom;
-
-			row++;
 		}
 	}
 
