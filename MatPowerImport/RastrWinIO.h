@@ -59,12 +59,15 @@ class RastrWinIO
 		ASTRALib::IColPtr genQg;
 		ASTRALib::IColPtr genQmin;
 		ASTRALib::IColPtr genQmax;
+		ASTRALib::IColPtr genPmin;
+		ASTRALib::IColPtr genPmax;
 
 
 		ASTRALib::IColPtr areaId;
 
 		ASTRALib::IColPtr flat;
 		ASTRALib::IColPtr itmax;
+		ASTRALib::IColPtr removeBreakers;
 
 
 		std::filesystem::path rg2template;

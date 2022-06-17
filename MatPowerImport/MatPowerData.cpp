@@ -75,8 +75,8 @@ void MatPowerCase::Export(const std::filesystem::path& path)
     mcase << fmt::format("function mpc = {}", path.filename().replace_extension().string()) << std::endl;
     if(!comment_.empty())
         mcase << "% " << comment_ << std::endl;
-    mcase << "mpc.version='2';" << std::endl;
-    mcase << fmt::format("mpc.baseMVA={};", BaseMVA_) << std::endl;
+    mcase << "mpc.version = '2';" << std::endl;
+    mcase << fmt::format("mpc.baseMVA = {};", BaseMVA_) << std::endl;
     mcase << "mpc.bus = [" << std::endl;
     mcase << fmt::format("%{:>9} {:>3} {:>15} {:>15} {:>15} {:>15} {:>7} {:>15} {:>15} {:>15} {:>7} {:>15} {:>15}",
         "Id",

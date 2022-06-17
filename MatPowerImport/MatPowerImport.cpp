@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 
 
     constexpr const char* rg2 = ".rg2";
-    constexpr const char* mext = ".mb";
+    constexpr const char* mext = ".m";
      
     
     try

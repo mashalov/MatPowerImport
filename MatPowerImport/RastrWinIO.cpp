@@ -196,6 +196,9 @@ void RastrWinIO::Import(MatPowerCase& data, const std::filesystem::path& path)
 			gen.Qmin = Qmin;
 			gen.Qmax = Qmax;
 
+			gen.Pmin = db.genPmin->GetZ(row).dblVal;
+			gen.Pmax = db.genPmax->GetZ(row).dblVal;
+
 			if (auto Node{ NodeMap.find(gen.Id) }; Node == NodeMap.end())
 				throw CException(cszGeneratorWrongNode, row + 1, gen.Id);
 			else
@@ -361,8 +364,16 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 			db.genBus->PutZ(row, gen.Id);
 			db.genPg->PutZN(row, gen.Pg);
 			db.genQg->PutZN(row, gen.Qg);
-			db.genQmin->PutZN(row, std::isinf(gen.Qmin) ? (gen.Qmin > 0 ? 1e6 : -1e6) : gen.Qmin);
-			db.genQmax->PutZN(row, std::isinf(gen.Qmax) ? (gen.Qmax > 0 ? 1e6 : -1e6) : gen.Qmax);
+
+			const auto fnFixInf = [](const double  value) -> double
+			{
+				return std::isinf(value) ? (value > 0 ? 1e6 : -1e6) : value;
+			};
+
+			db.genQmin->PutZN(row, (fnFixInf)(gen.Qmin));
+			db.genQmax->PutZN(row, (fnFixInf)(gen.Qmax));
+			db.genPmin->PutZN(row, (fnFixInf)(gen.Pmin));
+			db.genPmax->PutZN(row, (fnFixInf)(gen.Pmax));
 
 			if (auto Node{ NodeMap.find(gen.Id) }; Node == NodeMap.end())
 				throw CException(cszGeneratorWrongNode, row + 1, gen.Id);
@@ -385,6 +396,7 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 				
 		db.flat->PutZ(0, LoadFlowFlat() ? 1 : 0);
 		db.itmax->PutZ(0, 500);
+		db.removeBreakers->PutZ(0, 0);
 
 		constexpr const char* flatmsg = "from the flat start";
 		constexpr const char* noflatmsg = "from the original solution";
@@ -513,6 +525,8 @@ void RastrWinIO::RastrWinDB::Init()
 	genQg = gencols->Item("Q");
 	genQmin = gencols->Item("Qmin");
 	genQmax = gencols->Item("Qmax");
+	genPmin = gencols->Item("Pmin");
+	genPmax = gencols->Item("Pmax");
 
 	ASTRALib::IColsPtr areacols{ areas->Cols };
 	areaId = areacols->Item("na");
@@ -520,4 +534,5 @@ void RastrWinIO::RastrWinDB::Init()
 	ASTRALib::IColsPtr paramCols{ param->Cols };
 	flat = paramCols->Item("flot");
 	itmax = paramCols->Item("it_max");
+	removeBreakers = paramCols->Item("rem_breaker");
 }
