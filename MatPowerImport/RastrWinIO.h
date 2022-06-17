@@ -20,7 +20,9 @@ class RastrWinIO
 		ASTRALib::IColPtr nodeId;
 		ASTRALib::IColPtr nodeUnom;
 		ASTRALib::IColPtr nodePn;
+		ASTRALib::IColPtr nodePnr;
 		ASTRALib::IColPtr nodeQn;
+		ASTRALib::IColPtr nodeQnr;
 		ASTRALib::IColPtr nodeType;
 		ASTRALib::IColPtr nodeState;
 		ASTRALib::IColPtr nodeV;
@@ -28,24 +30,36 @@ class RastrWinIO
 		ASTRALib::IColPtr nodeArea;
 		ASTRALib::IColPtr nodeGsh;
 		ASTRALib::IColPtr nodeBsh;
+		ASTRALib::IColPtr nodeGshr;
+		ASTRALib::IColPtr nodeBshr;
 		ASTRALib::IColPtr nodeVref;
 		ASTRALib::IColPtr nodeName;
+		ASTRALib::IColPtr nodeQmin;
+		ASTRALib::IColPtr nodeQmax;
+		ASTRALib::IColPtr nodePgr;
+		ASTRALib::IColPtr nodeQgr;
 
 		ASTRALib::IColPtr branchHead;
 		ASTRALib::IColPtr branchTail;
 		ASTRALib::IColPtr branchr;
 		ASTRALib::IColPtr branchx;
 		ASTRALib::IColPtr branchb;
+		ASTRALib::IColPtr branchbip;
+		ASTRALib::IColPtr branchbiq;
+		ASTRALib::IColPtr branchgip;
+		ASTRALib::IColPtr branchgiq;
 		ASTRALib::IColPtr branchktr;
 		ASTRALib::IColPtr branchkti;
 		ASTRALib::IColPtr branchsta;
 
 		ASTRALib::IColPtr genBus;
 		ASTRALib::IColPtr genId;
+		ASTRALib::IColPtr genState;
 		ASTRALib::IColPtr genPg;
 		ASTRALib::IColPtr genQg;
 		ASTRALib::IColPtr genQmin;
 		ASTRALib::IColPtr genQmax;
+
 
 		ASTRALib::IColPtr areaId;
 

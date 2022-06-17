@@ -37,7 +37,7 @@ void MatPowerCase::Import(const std::filesystem::path& path)
     visitor.visit(tree);
 
     if(!Silent_)
-        logger_.Log(LogMessageTypes::Info, "MatPower caseformat is imported from {}", path.string());
+        logger_.Log(LogMessageTypes::Info, "MATPOWER caseformat is imported from {}", path.string());
 
     std::set<long> Areas;
     for (const auto& bus : buses)
@@ -53,16 +53,8 @@ void MatPowerCase::Import(const std::filesystem::path& path)
     for (const auto& area : Areas)
         areas.push_back({ area });
 
-    constexpr const char* ReportMask = "{:<15} {:>15}";
 
-    if (!Silent_)
-    {
-        logger_.Log(LogMessageTypes::Info, ReportMask, "Base MVA", BaseMVA_);
-        logger_.Log(LogMessageTypes::Info, ReportMask, "Buses", buses.size());
-        logger_.Log(LogMessageTypes::Info, ReportMask, "Branches", branches.size());
-        logger_.Log(LogMessageTypes::Info, ReportMask, "Generators", generators.size());
-        logger_.Log(LogMessageTypes::Info, ReportMask, "Areas", areas.size());
-    }
+    ShowDimensions();
 
     if (BaseMVA_ <= 0)
         throw CException("BaseMVA {} seems wrong", BaseMVA_);
@@ -183,4 +175,21 @@ void MatPowerCase::Export(const std::filesystem::path& path)
             gen.APF) << std::endl;
     }
     (closearray)();
+
+    ShowDimensions();
+    if(!Silent_)
+        logger_.Log(LogMessageTypes::Info, "MATPOWER model is exported to {}", path.string());
+}
+
+void MatPowerCase::ShowDimensions()
+{
+    constexpr const char* ReportMask = "{:<15} {:>15}";
+    if (!Silent_)
+    {
+        logger_.Log(LogMessageTypes::Info, ReportMask, "Base MVA", BaseMVA_);
+        logger_.Log(LogMessageTypes::Info, ReportMask, "Buses", buses.size());
+        logger_.Log(LogMessageTypes::Info, ReportMask, "Branches", branches.size());
+        logger_.Log(LogMessageTypes::Info, ReportMask, "Generators", generators.size());
+        logger_.Log(LogMessageTypes::Info, ReportMask, "Areas", areas.size());
+    }
 }

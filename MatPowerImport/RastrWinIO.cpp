@@ -38,9 +38,21 @@ void RastrWinIO::Import(MatPowerCase& data, const std::filesystem::path& path)
 		data.buses.reserve(db.nodes->GetSize());
 		long size{ db.nodes->GetSize() };
 
-		data.comment_ = fmt::format("Exported from RastrWin {}", path.filename().string());
+		data.comment_ = fmt::format("Exported from RastrWin {}\n% https://github.com/mashalov/MatPowerImport", path.filename().string());
 
-		std::map<long, long> NodeMap;
+		std::map<long, long> NodeMap, GenMap;
+
+		struct PVnode
+		{
+			long Id;
+			double Vref;
+			double Qmin;
+			double Qmax;
+			double Pg;
+			double Qg;
+		};
+
+		std::list<PVnode> pvnodes;
 
 		for (long row{ 0 }; row < size ; row++)
 		{
@@ -48,16 +60,20 @@ void RastrWinIO::Import(MatPowerCase& data, const std::filesystem::path& path)
 			auto& bus{ data.buses.back() };
 			bus.Id = db.nodeId->GetZ(row).lVal;
 			bus.Unom = db.nodeUnom->GetZN(row).dblVal;
-			bus.Pn = db.nodePn->GetZN(row).dblVal;
-			bus.Qn = db.nodeQn->GetZN(row).dblVal;
+			if(bus.Unom <= 0.0)
+				data.logger_.Log(LogMessageTypes::Error, "Bus {} has wrong Unom {}", bus.Id, bus.Unom);
+
+			bus.Pn = db.nodePnr->GetZN(row).dblVal;
+			bus.Qn = db.nodeQnr->GetZN(row).dblVal;
 			bus.V = db.nodeV->GetZN(row).dblVal / bus.Unom;
 			bus.Delta = db.nodeDelta->GetZN(row).dblVal;
 			bus.AreaId = db.nodeArea->GetZ(row).lVal;
-			bus.Gsh = db.nodeGsh->GetZ(row).dblVal * bus.Unom * bus.Unom;
-			bus.Bsh = -db.nodeBsh->GetZ(row).dblVal * bus.Unom * bus.Unom;
+			bus.Gsh = db.nodeGshr->GetZ(row).dblVal * bus.Unom * bus.Unom;
+			bus.Bsh = -db.nodeBshr->GetZ(row).dblVal * bus.Unom * bus.Unom;
 			bus.Name = db.nodeName->GetZS(row);
 			bus.Type = 1;
 
+						
 			if (db.nodeState->GetZ(row).lVal)
 				bus.Type = 4;
 			else
@@ -75,10 +91,24 @@ void RastrWinIO::Import(MatPowerCase& data, const std::filesystem::path& path)
 			}
 
 			NodeMap.insert({ bus.Id, row });
+
+			PVnode  pvnode;
+			pvnode.Id = bus.Id;
+			pvnode.Pg = db.nodePgr->GetZN(row).dblVal;
+			pvnode.Qg = db.nodeQgr->GetZN(row).dblVal;
+			pvnode.Qmin = db.nodeQmin->GetZN(row).dblVal;
+			pvnode.Qmax = db.nodeQmax->GetZN(row).dblVal;
+			pvnode.Vref = db.nodeVref->GetZN(row).dblVal / db.nodeUnom->GetZN(row).dblVal;
+
+			if (std::abs(pvnode.Pg) > 1e-7 || std::abs(pvnode.Qg) > 1e-7 ||
+				pvnode.Vref > 0.0)
+				pvnodes.push_back(pvnode);
 		}
 
 
 		size = db.branches->GetSize();
+		data.branches.reserve(size);
+
 		for (long row{ 0 }; row < size; row++)
 		{
 			data.branches.push_back({});
@@ -101,8 +131,11 @@ void RastrWinIO::Import(MatPowerCase& data, const std::filesystem::path& path)
 
 			if (ht[0].it != NodeMap.end() && ht[1].it != NodeMap.end())
 			{
-				const auto UHnom{ data.buses[ht[0].it->second].Unom };
-				const auto UTnom{ data.buses[ht[1].it->second].Unom };
+				auto& HeadNode{ data.buses[ht[0].it->second] };
+				auto& TailNode{ data.buses[ht[1].it->second] };
+			
+				const auto UHnom{ HeadNode.Unom };
+				const auto UTnom{ TailNode.Unom };
 
 				std::complex<double> kt{ db.branchktr->GetZN(row).dblVal, db.branchkti->GetZN(row).dblVal };
 				if (std::abs(kt.real()) < 1e-7)
@@ -110,32 +143,56 @@ void RastrWinIO::Import(MatPowerCase& data, const std::filesystem::path& path)
 
 				kt = UTnom / UHnom / kt;
 
-				auto Zbase{ UHnom * UHnom * std::norm(kt) / data.BaseMVA_ };
+				branch.State = db.branchsta->GetZ(row).lVal ? 0 : 1;
 
-				branch.r = db.branchr->GetZN(row).dblVal / Zbase;
-				branch.x = db.branchx->GetZN(row).dblVal / Zbase;
-				branch.b = -db.branchb->GetZ(row).dblVal * Zbase;
+				auto ZbaseHead{ UHnom * UHnom * std::norm(kt) / data.BaseMVA_ };
+				auto ZbaseTail{ UTnom * UTnom / data.BaseMVA_ };
+
+				branch.r = db.branchr->GetZN(row).dblVal / ZbaseHead;
+				branch.x = db.branchx->GetZN(row).dblVal / ZbaseHead;
+				double bip{ -db.branchbip->GetZ(row).dblVal };
+				double biq{ -db.branchbiq->GetZ(row).dblVal };
+				double gip{ db.branchgip->GetZ(row).dblVal };
+				double giq{ db.branchgiq->GetZ(row).dblVal };
+				
+				if (branch.State)
+				{
+					HeadNode.Gsh += gip * UHnom * UHnom;
+					TailNode.Gsh += giq * UTnom * UTnom;
+				}
+
+				if(std::abs(bip - biq) < 1e-7)
+					branch.b = (bip + biq) * ZbaseHead;
+				else if(branch.State)
+				{
+					HeadNode.Bsh += bip * UHnom * UHnom;
+					TailNode.Bsh += biq * UTnom * UTnom;
+				}
+
 				branch.ktr = std::abs(kt);
 				branch.kti = std::arg(kt) * 180.0 / pi;
-				branch.State = db.branchsta->GetZ(row).lVal ? 0 : 1;
 			}
 		}
 
 		size = db.generators->GetSize();
+		data.generators.reserve(pvnodes.size());
+
 		for (long row{ 0 }; row < size; row++)
 		{
 			data.generators.push_back({});
 			auto& gen{ data.generators.back() };
 			gen.Id = db.genBus->GetZ(row).lVal;
+
+			GenMap.insert({ gen.Id, row });
+
 			gen.Pg = db.genPg->GetZN(row).dblVal;
 			gen.Qg = db.genQg->GetZN(row).dblVal;
+			gen.State = db.genState->GetZ(row).lVal ? 0 : 1;
 
 			double Qmin{ db.genQmin->GetZN(row).dblVal };
 			double Qmax{ db.genQmax->GetZN(row).dblVal };
-			if (std::abs(Qmax - Qmin) < 1e-7 && std::abs(Qmax) < 1e-7)
-			{
-				//Qmin = -1e6;	Qmax = 1e6;
-			}
+			// handling of RastrWin [0;0] limits is ambiguous
+			//if (std::abs(Qmax - Qmin) < 1e-7 && std::abs(Qmax) < 1e-7)  { Qmin = -1e6;	Qmax = 1e6; }
 			gen.Qmin = Qmin;
 			gen.Qmax = Qmax;
 
@@ -144,6 +201,36 @@ void RastrWinIO::Import(MatPowerCase& data, const std::filesystem::path& path)
 			else
 				gen.Vg = db.nodeVref->GetZN(Node->second).dblVal / data.buses[Node->second].Unom;
 		}
+
+		for (const auto& pvnode : pvnodes)
+		{
+			if (GenMap.find(pvnode.Id) == GenMap.end())
+			{
+				auto& node{ data.buses[NodeMap.find(pvnode.Id)->second] };
+				// RastrWin node has Vref and it must be supplied by generator
+				if (pvnode.Vref > 0)
+				{
+					data.generators.push_back({});
+					auto& gen{ data.generators.back() };
+					gen.Id = pvnode.Id;
+					gen.Vg = pvnode.Vref;
+					gen.Qmin = pvnode.Qmin;
+					gen.Qmax = pvnode.Qmax;
+					gen.Pg = pvnode.Pg;
+					gen.Qg = pvnode.Qg;
+					gen.State = (node.Type == 4) ? 0 : 1;
+				}
+				else
+				{
+					// Vref is not set, just account generation as neagative load
+					node.Pn -= pvnode.Pg;
+					node.Qn -= pvnode.Qg;
+				}
+			}
+		}
+
+		if (!data.Silent())
+			data.logger_.Log(LogMessageTypes::Info, "RastrWin model is imported from {}", path.string());
 	}
 
 	catch (const _com_error& ex)
@@ -250,7 +337,7 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 					
 
 				// clear ratio if it is equal to 1.0 with no angle shift
-				if (std::abs(kt.real() - 1.0) < 1E-7 && kt.imag() == 0)
+				if (std::abs(kt.real() - 1.0) < 1E-5 && kt.imag() == 0)
 					kt = 0.0;
 
 				db.branchktr->PutZ(row, kt.real());
@@ -281,6 +368,8 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 				throw CException(cszGeneratorWrongNode, row + 1, gen.Id);
 			else
 				db.nodeVref->PutZN(Node->second, gen.Vg * data.buses[Node->second].Unom);
+
+			db.genState->PutZ(row, gen.State ? 0 : 1);
 
 			row++;
 		}
@@ -382,7 +471,9 @@ void RastrWinIO::RastrWinDB::Init()
 	nodeId = nodecols->Item("ny");
 	nodeUnom = nodecols->Item("uhom");
 	nodePn = nodecols->Item("pn");
+	nodePnr = nodecols->Item("pnr");
 	nodeQn = nodecols->Item("qn");
+	nodeQnr = nodecols->Item("qnr");
 	nodeType = nodecols->Item("tip");
 	nodeState = nodecols->Item("sta");
 	nodeV = nodecols->Item("vras");
@@ -390,8 +481,14 @@ void RastrWinIO::RastrWinDB::Init()
 	nodeArea = nodecols->Item("na");
 	nodeGsh = nodecols->Item("gsh");
 	nodeBsh = nodecols->Item("bsh");
-	nodeVref = nodecols->Item("vzd");
+	nodeGshr = nodecols->Item("gshr");
+	nodeBshr = nodecols->Item("bshr");
 	nodeName =nodecols->Item("name");
+	nodeVref = nodecols->Item("vzd");
+	nodeQmin = nodecols->Item("qmin");
+	nodeQmax = nodecols->Item("qmax");
+	nodePgr = nodecols->Item("pgr");
+	nodeQgr = nodecols->Item("qgr");
 
 	ASTRALib::IColsPtr branchcols{ branches->Cols };
 	branchHead = branchcols->Item("ip");
@@ -399,6 +496,10 @@ void RastrWinIO::RastrWinDB::Init()
 	branchr = branchcols->Item("r");
 	branchx = branchcols->Item("x");
 	branchb = branchcols->Item("b");
+	branchbip = branchcols->Item("b_ip");
+	branchbiq = branchcols->Item("b_iq");
+	branchgip = branchcols->Item("g_ip");
+	branchgiq = branchcols->Item("g_iq");
 	branchktr = branchcols->Item("ktr");
 	branchkti = branchcols->Item("kti");
 	branchsta = branchcols->Item("sta");
@@ -407,6 +508,7 @@ void RastrWinIO::RastrWinDB::Init()
 	ASTRALib::IColsPtr gencols{ generators->Cols };
 	genBus = gencols->Item("Node");
 	genId = gencols->Item("Num");
+	genState = gencols->Item("sta");
 	genPg = gencols->Item("P");
 	genQg = gencols->Item("Q");
 	genQmin = gencols->Item("Qmin");

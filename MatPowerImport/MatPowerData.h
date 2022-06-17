@@ -42,6 +42,7 @@ class MatPowerCase
 {
 protected:
 	bool Silent_ = false;
+	void ShowDimensions();
 public:
 	CPlainLogger& logger_;
 
