@@ -5,7 +5,7 @@ Since the MATPOWER caseformat is actually a Matlab m-file, MatPowerImport relies
 `cmake ../.`
 and then
 `cmake --build .`
-Known Issues: sometimes the compiler may show an error in the min/max function that conflicts with the Windows header defined counterparts. A known affected source is SerializedATNView.h from the Antlr4 package. The easiest way to fix this is to simply replace `std::min` with `(std::min)` and `std::max` with `(std::max)`. CMake build downloads latest releases Antlr and [fmt](https://github.com/fmtlib/fmt). Visual Studio project locked to Antlr 4.9.2 release. You can upgrade your project, but it should be synced with Antlr C++ runtime.
+Known Issues: sometimes the compiler may show an error in the min/max function that conflicts with the Windows header defined counterparts. A known affected source is SerializedATNView.h from the Antlr4 package. The easiest way to fix this is to simply replace `std::min` with `(std::min)` and `std::max` with `(std::max)`. CMake build downloads latest Antlr runtime and [fmt](https://github.com/fmtlib/fmt) releases, but Antlr compiler used is 4.10.1. Visual Studio project locked to Antlr 4.9.2 release. You can upgrade your project (both compiler or runtime), but it should be synced with Antlr C++ runtime.
 ## Usage
 Run MatPowerImport from the console with at least one argument - the path to the MATPOWER caseformat. The second argument is optional. This is the path to rg2 file to be exported . If there is only one caseformat path, the resulting rg2 file will be written to the same folder with the name of the MATPOWER caseformat file and extension "rg2". 
 There are some options to run MatPowerImport. Place options before pathames as follows:   
