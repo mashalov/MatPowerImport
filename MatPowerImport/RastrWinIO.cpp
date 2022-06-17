@@ -34,12 +34,19 @@ void RastrWinIO::Import(MatPowerCase& data, const std::filesystem::path& path)
 					   stringutils::COM_encode(db.rg2template.string()).c_str());
 		db.Init();
 
+		if (!data.Silent())
+ 			data.logger_.Log(LogMessageTypes::Info, "RastrWin model is imported from {}", path.string());
+
+		LF(data);
+
 		data.buses.clear();
 		data.buses.reserve(db.nodes->GetSize());
 		long size{ db.nodes->GetSize() };
 
-		data.comment_ = fmt::format("Exported from RastrWin {}\n% https://github.com/mashalov/MatPowerImport", path.filename().string());
-
+		data.comment_ = fmt::format("Exported from RastrWin file \"{}\"\n" \
+									"with MatPowerImport tool : https://github.com/mashalov/MatPowerImport", 
+									path.filename().string());
+		 
 		std::map<long, long> NodeMap, GenMap;
 
 		struct PVnode
@@ -231,9 +238,6 @@ void RastrWinIO::Import(MatPowerCase& data, const std::filesystem::path& path)
 				}
 			}
 		}
-
-		if (!data.Silent())
-			data.logger_.Log(LogMessageTypes::Info, "RastrWin model is imported from {}", path.string());
 	}
 
 	catch (const _com_error& ex)
@@ -398,21 +402,7 @@ void RastrWinIO::Export(const MatPowerCase& data, const std::filesystem::path& p
 		db.itmax->PutZ(0, 500);
 		db.removeBreakers->PutZ(0, 0);
 
-		constexpr const char* flatmsg = "from the flat start";
-		constexpr const char* noflatmsg = "from the original solution";
-
-		if (LoadFlow())
-		{
-			const auto ret{ db.rastr->rgm("") };
-			if (ret == ASTRALib::AST_OK)
-			{
-				if(!StatsOnly())
-					data.logger_.Log(LogMessageTypes::Info, "Load flow solved {}", LoadFlowFlat() ? flatmsg : noflatmsg);
-			}
-			else
-				data.logger_.Log(LogMessageTypes::Error, "Load flow failed {}", LoadFlowFlat() ? flatmsg : noflatmsg);
-		}
-
+		LF(data);
 		if (LoadFlowStats())
 		{
 			const auto stats{ Stats(data) };
@@ -535,4 +525,23 @@ void RastrWinIO::RastrWinDB::Init()
 	flat = paramCols->Item("flot");
 	itmax = paramCols->Item("it_max");
 	removeBreakers = paramCols->Item("rem_breaker");
+}
+
+
+void RastrWinIO::LF(const MatPowerCase& data) const
+{
+	constexpr const char* flatmsg = "from the flat start";
+	constexpr const char* noflatmsg = "from the original solution";
+
+	if (LoadFlow())
+	{
+		const auto ret{ db.rastr->rgm("") };
+		if (ret == ASTRALib::AST_OK)
+		{
+			if (!StatsOnly())
+				data.logger_.Log(LogMessageTypes::Info, "Load flow solved {}", LoadFlowFlat() ? flatmsg : noflatmsg);
+		}
+		else
+			data.logger_.Log(LogMessageTypes::Error, "Load flow failed {}", LoadFlowFlat() ? flatmsg : noflatmsg);
+	}
 }

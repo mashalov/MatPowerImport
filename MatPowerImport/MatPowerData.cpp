@@ -67,18 +67,23 @@ void MatPowerCase::Export(const std::filesystem::path& path)
     if (!mcase.is_open())
         throw CExceptionGLE(cszFileCannotBeOpened, path.string());
 
-    const auto closearray = [&mcase]()
+    const auto closearray = [&mcase]() 
     {
-        mcase << "];" << std::endl;
+        mcase << "];" << std::endl << std::endl;
     };
 
     mcase << fmt::format("function mpc = {}", path.filename().replace_extension().string()) << std::endl;
-    if(!comment_.empty())
-        mcase << "% " << comment_ << std::endl;
+    if (!comment_.empty())
+    {
+        STRINGLIST comments;
+        stringutils::split(comment_, comments, "\n");
+        for(const auto& comment : comments)
+            mcase << "% " << comment << std::endl;
+    }
     mcase << "mpc.version = '2';" << std::endl;
     mcase << fmt::format("mpc.baseMVA = {};", BaseMVA_) << std::endl;
     mcase << "mpc.bus = [" << std::endl;
-    mcase << fmt::format("%{:>9} {:>3} {:>15} {:>15} {:>15} {:>15} {:>7} {:>15} {:>15} {:>15} {:>7} {:>15} {:>15}",
+    mcase << fmt::format("%{:>9} {:>3} {:>12} {:>12} {:>12} {:>12} {:>7} {:>12} {:>12} {:>12} {:>7} {:>12} {:>12}",
         "Id",
         "Tpe",
         "Pd", "Qd",
@@ -90,7 +95,7 @@ void MatPowerCase::Export(const std::filesystem::path& path)
         "Vmax", "Vmin" )<< std::endl;
     for (const auto& bus : buses)
     {
-        mcase << fmt::format("{:10} {:3} {:15g} {:15g} {:15g} {:15g} {:7} {:15g} {:15g} {:15g} {:7} {:15g} {:15g};",
+        mcase << fmt::format("{:10} {:3} {:12g} {:12g} {:12g} {:12g} {:7} {:12g} {:12g} {:12g} {:7} {:12g} {:12g};",
             bus.Id,
             bus.Type,
             bus.Pn,
@@ -108,7 +113,7 @@ void MatPowerCase::Export(const std::filesystem::path& path)
     (closearray)();
 
     mcase << "mpc.branch = [" << std::endl;
-    mcase << fmt::format("%{:>9} {:>10} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>3} {:>15} {:>15}",
+    mcase << fmt::format("%{:>9} {:>10} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>3} {:>12} {:>12}",
         "fbus",
         "tbus",
         "r", "x", "b",
@@ -118,7 +123,7 @@ void MatPowerCase::Export(const std::filesystem::path& path)
         "angmin", "angmax") << std::endl;
     for (const auto& branch : branches)
     {
-        mcase << fmt::format("{:10} {:10} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:3} {:15g} {:15g};",
+        mcase << fmt::format("{:10} {:10} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:3} {:12g} {:12g};",
             branch.IdHead,
             branch.IdTail,
             branch.r,
@@ -136,7 +141,7 @@ void MatPowerCase::Export(const std::filesystem::path& path)
     (closearray)();
 
     mcase << "mpc.gen = [" << std::endl;
-    mcase << fmt::format("%{:>9} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>5} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15} {:>15}",
+    mcase << fmt::format("%{:>9} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>5} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12}",
         "bus",
         "Pg", "Qg",
         "Qmax", "Qmin",
@@ -151,7 +156,7 @@ void MatPowerCase::Export(const std::filesystem::path& path)
         "ramp_Q", "APF") << std::endl;
     for (const auto& gen : generators)
     {
-        mcase << fmt::format("{:10} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:5} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g} {:15g};",
+        mcase << fmt::format("{:10} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:5} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g};",
             gen.Id,
             gen.Pg,
             gen.Qg,

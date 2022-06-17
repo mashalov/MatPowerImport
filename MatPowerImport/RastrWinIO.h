@@ -106,6 +106,8 @@ public:
 	void SetLoadFlow(bool LoadFlow) { LoadFlow_ = LoadFlow; }
 	bool LoadFlowFlat() const { return LoadFlowFlat_; }
 	LFStats Stats(const MatPowerCase& data) const;
+	void LF(const MatPowerCase& data) const;
+
 	void SetLoadFlowFlat(bool LoadFlowFlat)
 	{
 		LoadFlowFlat_ = LoadFlowFlat;
