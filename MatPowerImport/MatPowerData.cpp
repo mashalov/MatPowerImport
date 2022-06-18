@@ -82,7 +82,6 @@ void MatPowerCase::Export(const std::filesystem::path& path)
     }
     mcase << "mpc.version = '2';" << std::endl;
     mcase << fmt::format("mpc.baseMVA = {};", BaseMVA_) << std::endl;
-    mcase << "mpc.bus = [" << std::endl;
     mcase << fmt::format("%{:>9} {:>3} {:>12} {:>12} {:>12} {:>12} {:>7} {:>12} {:>12} {:>12} {:>7} {:>12} {:>12}",
         "Id",
         "Tpe",
@@ -92,7 +91,8 @@ void MatPowerCase::Export(const std::filesystem::path& path)
         "Vm", "Va",
         "baseKv",
         "zone",
-        "Vmax", "Vmin" )<< std::endl;
+        "Vmax", "Vmin") << std::endl;
+    mcase << "mpc.bus = [" << std::endl;
     for (const auto& bus : buses)
     {
         mcase << fmt::format("{:10} {:3} {:12g} {:12g} {:12g} {:12g} {:7} {:12g} {:12g} {:12g} {:7} {:12g} {:12g};",
@@ -112,15 +112,15 @@ void MatPowerCase::Export(const std::filesystem::path& path)
     }
     (closearray)();
 
-    mcase << "mpc.branch = [" << std::endl;
     mcase << fmt::format("%{:>9} {:>10} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>3} {:>12} {:>12}",
         "fbus",
         "tbus",
         "r", "x", "b",
         "rateA", "rateB", "rateC",
-        "ratio", "angle", 
+        "ratio", "angle",
         "sta",
         "angmin", "angmax") << std::endl;
+    mcase << "mpc.branch = [" << std::endl;
     for (const auto& branch : branches)
     {
         mcase << fmt::format("{:10} {:10} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:3} {:12g} {:12g};",
@@ -140,7 +140,6 @@ void MatPowerCase::Export(const std::filesystem::path& path)
     }
     (closearray)();
 
-    mcase << "mpc.gen = [" << std::endl;
     mcase << fmt::format("%{:>9} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>5} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12} {:>12}",
         "bus",
         "Pg", "Qg",
@@ -154,6 +153,7 @@ void MatPowerCase::Export(const std::filesystem::path& path)
         "Qc2min", "Qc2max",
         "ramp", "ramp_10", "ramp_30",
         "ramp_Q", "APF") << std::endl;
+    mcase << "mpc.gen = [" << std::endl;
     for (const auto& gen : generators)
     {
         mcase << fmt::format("{:10} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:5} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g} {:12g};",
