@@ -36,7 +36,7 @@ set(ANTLR_BUILD_CPP_TESTS OFF)
 set(ANTLR4CPP_STATIC ON)
 set(WITH_STATIC_CRT OFF)
 
-add_compile_definitions(NONMINMAX ANTLR4CPP_STATIC WIN32_LEAN_AND_MEAN)
+add_compile_definitions(NOMINMAX ANTLR4CPP_STATIC WIN32_LEAN_AND_MEAN)
 
 # build dependencies
 
@@ -89,7 +89,7 @@ target_compile_definitions(MatPowerImport
         "ANTLR4CPP_STATIC" 
         "_CONSOLE" 
         "NOGDI" 
-        "NONMINMAX" 
+        "NOMINMAX" 
         "_SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING" 
         "_MBCS"
 )
