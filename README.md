@@ -3,19 +3,19 @@ This utility is designed to convert [MATPOWER](https://github.com/MATPOWER/matpo
 ## Build
 Since the MATPOWER caseformat is actually a Matlab m-file, MatPowerImport relies on [Antlr](https://github.com/antlr/antlr4) parsing. You must compile the C++ runtime antlr4-runtime-static.lib for debug and release builds. RastrWin must also be installed to access its type library via progID. You can use CMake with included CMakeLists.txt. Locate this file in the MatPowerImport folder, create subfolder 'build' and jump into it. Run:
 
-	`cmake ../.`
+	cmake ../.
 	
 and then
 
-	`cmake --build .`
+	cmake --build .
 	
 Build configuration can be selected
 
-	`cmake --build . --config Release`
+	make --build . --config Release
 	
 or 
 
-	`cmake --build . --config Debug`
+	cmake --build . --config Debug
 	
 CMake build downloads latest [Antlr](https://github.com/antlr/antlr4) runtime and [fmt](https://github.com/fmtlib/fmt) releases, but Antlr compiler used is 4.13.0. Visual Studio project locked to Antlr 4.13.0 release. You can upgrade your project (both compiler or runtime), but it should be synced with Antlr C++ runtime.
 ## Usage
