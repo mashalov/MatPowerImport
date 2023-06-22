@@ -3,6 +3,8 @@
 #include <iostream>
 #include "MatPowerData.h"
 #include "RastrWinIO.h"
+#include "PackageVersion.h"
+#include "FmtFormatters.h"
 
 int main(int argc, char* argv[])
 {
@@ -12,6 +14,10 @@ int main(int argc, char* argv[])
     std::filesystem::path matpowerpath;
     std::filesystem::path rastrwinpath;
 
+    logger.Log(LogMessageTypes::Info, "MatpowerImport v{}, © Eugene Mashalov, 2023. " 
+                                      "https://github.com/mashalov/MatPowerImport", 
+                                       PackageVersion);
+
     if (argc == 1)
     {
         logger.Log(LogMessageTypes::Info, "Usage: [options] (matpower m-file path) [RastrWin rg2-file path]");
@@ -19,8 +25,8 @@ int main(int argc, char* argv[])
         logger.Log(LogMessageTypes::Info, "\t-zbopt - optional Zbase calculation: Zbase = Vf^2/baseMVA (default is Zbase = Vf^2*|ratio/_angle|^2/baseMVA)");
         logger.Log(LogMessageTypes::Info, "\t-lf    - solve load flow with RastrWin before export");
         logger.Log(LogMessageTypes::Info, "\t-flat  - solve load flow with RastrWin before export using flat start");
-        logger.Log(LogMessageTypes::Info, "\t-stats - solve load flow with RastrWin before export and print difference statistics" \
-                                          "(standard deviations of voltage magnitudes and angles between caseformat and RastrWin solutions");
+        logger.Log(LogMessageTypes::Info, "\t-stats - solve load flow with RastrWin before export and print difference statistics " \
+                                          "(standard deviations of voltage magnitudes and angles between caseformat and RastrWin solution)");
         return 1;
     }
 
