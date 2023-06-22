@@ -45,7 +45,7 @@ add_subdirectory(${antlrSrc}/runtime/Cpp)
 
 # build antlr4 parser from .g4 
 
-set(ANTLR_COMPILER ${CMAKE_CURRENT_SOURCE_DIR}/antlr/antlr-4.10.1-complete.jar)
+set(ANTLR_COMPILER ${CMAKE_CURRENT_SOURCE_DIR}/antlr/antlr-4.13.0-complete.jar)
 set(ANTLR_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Generated/)
 set(ANTLR_OUTPUT 
     "${ANTLR_OUTPUT_DIR}/MpcParser.cpp"
